@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FilmStrip, Reveal } from "@/components/cinema";
 import { NumbersBand } from "@/components/site/NumbersBand";
 import { PublicFooter } from "@/components/site/PublicFooter";
-import { ButtonLink, Container, Divider, SectionHeading } from "@/components/ui";
+import { ButtonLink, Container, SectionHeading } from "@/components/ui";
 import { pad2 } from "@/lib/event-display";
 import { getSettings } from "@/lib/settings";
 
@@ -88,8 +88,10 @@ export default async function CompetitionPage() {
               </li>
             ))}
           </ul>
+          {/* Hidden until prizes are announced. Restore by uncommenting (and the Divider import):
           <Divider className="mt-12 max-w-3xl" />
           <p className="mt-8 font-display text-[clamp(2.5rem,7vw,4.5rem)] uppercase leading-none text-cream">{s.prizeText}</p>
+          */}
         </section>
 
         <Reveal className="flex flex-col items-start gap-6 border-t border-divider pt-14">
