@@ -5,7 +5,7 @@ import type { SdgTheme } from "@/lib/settings-defaults";
 
 /**
  * Large SDG tile: number in its accent colour, title, thin accent border.
- * Hover or focus previews the description; click/tap toggles it (aria-expanded).
+ * Hover or focus adds a soft accent glow; click/tap toggles the description (aria-expanded).
  */
 export function SDGCard({ theme }: { theme: SdgTheme }) {
   const [open, setOpen] = useState(false);
@@ -39,14 +39,15 @@ export function SDGCard({ theme }: { theme: SdgTheme }) {
       </span>
       <span
         id={descId}
-        className={`mt-6 block text-sm leading-relaxed text-cream/80 transition-[opacity,max-height] duration-700 ease-[var(--ease-cinema)] ${
-          open ? "max-h-60 opacity-100" : "max-h-0 overflow-hidden opacity-0 md:group-hover:max-h-60 md:group-hover:opacity-100 md:group-focus-visible:max-h-60 md:group-focus-visible:opacity-100"
+        // Opens only on click/tap (hover just glows), so "Read more" always visibly does something.
+        className={`mt-6 block overflow-hidden text-sm leading-relaxed text-cream/80 transition-[opacity,max-height] duration-700 ease-[var(--ease-cinema)] ${
+          open ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         {theme.description}
       </span>
       <span className="mt-4 block text-[0.65rem] uppercase tracking-[0.24em] text-cream/50">
-        SDG {theme.number} · {open ? "Hide" : "Read more"}
+        SDG {theme.number} · {open ? "Show less" : "Read more"}
       </span>
     </button>
   );

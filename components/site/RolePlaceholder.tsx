@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SignOutButton } from "@/components/site/SignOutButton";
 import { Container, SectionHeading } from "@/components/ui";
 
@@ -12,7 +13,12 @@ export function RolePlaceholder({ area, email, role }: { area: string; email: st
         <dt className="uppercase tracking-[0.24em] text-cream-muted">Role</dt>
         <dd className="text-cream">{role}</dd>
       </dl>
-      <SignOutButton className="mt-10 min-h-11 text-xs uppercase tracking-[0.24em] text-cream/70 underline underline-offset-4 hover:text-cream" />
+      <div className="mt-10 flex flex-wrap items-center gap-8">
+        <Link href="/" className="min-h-11 py-3 text-xs uppercase tracking-[0.24em] text-cream/70 underline underline-offset-4 hover:text-cream">
+          Public site
+        </Link>
+        <SignOutButton className="min-h-11 text-xs uppercase tracking-[0.24em] text-cream/70 underline underline-offset-4 hover:text-cream" />
+      </div>
     </Container>
   );
 }

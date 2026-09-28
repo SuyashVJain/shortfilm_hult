@@ -24,7 +24,20 @@ export const auth = betterAuth({
       },
     },
   },
-  rateLimit: { enabled: true, window: 60, max: 10 },
+  // Per-IP limits. Campus Wi-Fi puts many students behind one IP, so the
+  // general limit is generous and only code sending/verifying is tight.
+  // Session reads are never limited: middleware checks the session on every
+  // protected page, and a 429 there caused redirect loops.
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 100,
+    customRules: {
+      "/get-session": false,
+      "/email-otp/send-verification-otp": { window: 60, max: 20 },
+      "/sign-in/email-otp": { window: 60, max: 30 },
+    },
+  },
   plugins: [
     emailOTP({
       otpLength: 6,

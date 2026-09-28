@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PublicFooter } from "@/components/site/PublicFooter";
 import { Container, SectionHeading } from "@/components/ui";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/guards";
@@ -11,7 +12,12 @@ import { RegisterClient, type RegisterSettings } from "./RegisterClient";
 export const metadata: Metadata = { title: "Register | Short Film Competition" };
 
 function Frame({ children }: { children: React.ReactNode }) {
-  return <Container className="max-w-3xl py-[8dvh]">{children}</Container>;
+  return (
+    <>
+      <Container className="max-w-3xl py-[8dvh]">{children}</Container>
+      <PublicFooter />
+    </>
+  );
 }
 
 export default async function RegisterPage() {
