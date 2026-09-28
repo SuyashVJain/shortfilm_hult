@@ -112,8 +112,8 @@ export async function registerTeam(input: RegistrationInput): Promise<RegisterRe
       subject: `Registration received: ${teamCode}`,
       text:
         `Your team "${details.teamName.trim()}" is registered for the ${settings.eventTitle}.\n\n` +
-        `Team ID: ${teamCode}\nPayment: Pending verification\n\n` +
-        `The organisers will verify your payment manually. You can follow the status on your dashboard.`,
+        `Team ID: ${teamCode}\nPayment: Needs review\n\n` +
+        `The organisers will check your payment. You can already use your team dashboard.`,
     });
   } catch {
     emailSent = false;

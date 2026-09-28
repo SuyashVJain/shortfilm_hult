@@ -29,8 +29,8 @@ Status key: OPEN (undecided), PROPOSED (default suggested, needs confirmation), 
 | B1 | Payment method (UPI ID / QR / bank details / cash desk) | OPEN | Admin-configurable "payment instructions" text plus optional QR image in settings. Nothing hardcoded. |
 | B2 | Is a UTR always required, or may cash payment be verified offline? | OPEN | UTR and screenshot both collected as specified. |
 | B3 | Refund policy | OPEN | Not shown. |
-| B4 | Can a rejected team resubmit payment? | PROPOSED | Yes. New payment record, old one kept as history. |
-| B5 | When is registration locked for editing? | PROPOSED | Editable until payment is verified or the deadline passes, whichever is first, or the admin locks it manually. Confirm. |
+| B4 | Can a rejected team resubmit payment? | DONE | Yes. A new PENDING payment record from the dashboard; old rows kept as history. Payment is optimistic: teams have full access while it is under review. |
+| B5 | When is registration locked for editing? | DONE | Editable until the admin locks it or the registration deadline passes. Payment status does not affect editing. |
 | B6 | Team name uniqueness | PROPOSED | Unique, case-insensitive. |
 | B7 | One team per leader email | PROPOSED | Yes. |
 | B8 | Late registrations after 7 Oct (extension handling) | OPEN | Registration open/closed is a manual admin switch plus deadline setting. |

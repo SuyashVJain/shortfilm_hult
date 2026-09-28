@@ -33,7 +33,7 @@ export const viewport: Viewport = {
   themeColor: "#050505",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     // suppressHydrationWarning: the boot script may set data-loader before hydration.
     <html

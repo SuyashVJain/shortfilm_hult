@@ -14,7 +14,7 @@ export function Confirmation({ teamCode, sdg, filmTitle, email, emailSent }: Pro
       <dl className="mt-8 space-y-2 text-sm">
         <div className="grid grid-cols-[8.5rem_1fr] gap-3">
           <dt className="uppercase tracking-[0.16em] text-cream/50">Payment</dt>
-          <dd className="text-cream">Pending Verification</dd>
+          <dd className="text-cream">Needs review</dd>
         </div>
         <div className="grid grid-cols-[8.5rem_1fr] gap-3">
           <dt className="uppercase tracking-[0.16em] text-cream/50">Selected SDG</dt>
@@ -26,7 +26,10 @@ export function Confirmation({ teamCode, sdg, filmTitle, email, emailSent }: Pro
         </div>
       </dl>
 
-      <p className="mt-8 text-sm text-cream/65">
+      <p className="mt-8 text-sm text-cream/80">
+        The organisers will check your payment. You can already use your team dashboard.
+      </p>
+      <p className="mt-3 text-sm text-cream/65">
         {emailSent
           ? `A confirmation email with your Team ID was sent to ${email}.`
           : "We couldn't send the confirmation email, but your registration is saved. Note your Team ID above."}
