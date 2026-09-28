@@ -28,7 +28,7 @@ Read the relevant doc before building any feature. If code and docs disagree, as
 
 ## Stack
 
-Next.js (App Router) · TypeScript · Tailwind · Framer Motion · Zod · Neon Postgres · Prisma (Neon adapter) · Better Auth (email OTP) · Resend · Vercel Blob · Vercel.
+Next.js (App Router) · TypeScript · Tailwind · Framer Motion · Zod · Neon Postgres · Prisma (Neon adapter) · Better Auth (email OTP) · Gmail SMTP via nodemailer (`lib/mailer.ts`) · Vercel Blob · Vercel.
 
 ## Git
 

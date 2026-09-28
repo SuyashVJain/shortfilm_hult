@@ -18,7 +18,7 @@
 | Database | PostgreSQL on **Neon** | Pooled URL for runtime, direct URL for migrations |
 | ORM | Prisma with the Neon serverless adapter | |
 | Auth | **Better Auth**, email OTP, role field | No passwords |
-| Email | Resend | OTP and minimal notifications |
+| Email | Gmail SMTP via nodemailer | OTP and minimal notifications. About 500 emails/day cap. Swappable behind `lib/mailer.ts` |
 | File storage | Vercel Blob behind `lib/storage.ts` interface | **Payment screenshots and the payment QR only** |
 | Film delivery | **Google Drive link** submitted by teams | No video files stored by us |
 | Hosting | Vercel | |
@@ -103,6 +103,13 @@ Key/value rows or one JSON row, `updatedAt`, `updatedById`.
 
 ### Relationships
 User 1—1 Team · Team 1—N TeamMember · Team 1—N Payment · Team 1—1 FilmSubmission · FilmSubmission 1—N Evaluation · Evaluation N—1 User (jury) · Award N—1 FilmSubmission.
+
+### Implementation names (prisma/schema.prisma)
+Where the Prisma schema differs from the names above:
+- **EventSettings** is the `EventSetting` model: one row per key (`key`, `value` JSON, `updatedAt`, `updatedById`). Defaults live in `lib/settings-defaults.ts`.
+- **Award / Result** is the `Award` model.
+- **Team** adds `nameKey` (lowercased name, unique) to enforce case-insensitive name uniqueness (open-questions B6).
+- **Counter** (`key`, `value`) is an extra table used by `lib/team-code.ts` to issue `HP-SF-###` codes atomically.
 
 ## 5. Derived states (not stored twice)
 

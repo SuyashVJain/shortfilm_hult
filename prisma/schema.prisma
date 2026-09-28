@@ -1,4 +1,5 @@
-// Phase 0: Better Auth tables only. App tables (Team, Payment, ...) come later.
+// Better Auth tables (user, session, account, verification) plus the app
+// data model from docs/architecture.md section 4.
 // Connection URLs live in prisma.config.ts (migrations, DIRECT_URL) and
 // lib/db.ts (runtime, pooled DATABASE_URL via the Neon adapter).
 
@@ -28,6 +29,11 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  team             Team?
+  reviewedPayments Payment[]      @relation("PaymentReviewer")
+  evaluations      Evaluation[]
+  settingsUpdated  EventSetting[]
 
   @@map("user")
 }
@@ -77,4 +83,149 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// ---------------------------------------------------------------------------
+// App data model (docs/architecture.md section 4)
+// ---------------------------------------------------------------------------
+
+enum RegistrationStatus {
+  SUBMITTED
+  APPROVED
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum SubmissionStatus {
+  NOT_SUBMITTED
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model Team {
+  id                 String             @id @default(cuid())
+  code               String             @unique // HP-SF-###, from lib/team-code.ts
+  name               String
+  nameKey            String             @unique // lowercased name: case-insensitive uniqueness
+  leaderId           String             @unique // one team per leader
+  leader             User               @relation(fields: [leaderId], references: [id])
+  leaderName         String
+  whatsapp           String
+  branch             String
+  semester           String
+  sdg                Int
+  filmTitle          String
+  synopsis           String
+  sdgApproach        String
+  registrationStatus RegistrationStatus @default(SUBMITTED)
+  locked             Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  members    TeamMember[]
+  payments   Payment[]
+  submission FilmSubmission?
+
+  @@index([sdg])
+  @@index([registrationStatus])
+  @@index([createdAt])
+}
+
+model TeamMember {
+  id       String  @id @default(cuid())
+  teamId   String
+  team     Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  fullName String
+  branch   String
+  semester String
+  isLeader Boolean @default(false)
+
+  @@index([teamId])
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  teamId        String
+  team          Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  amount        Int // snapshot of the fee at submission (INR)
+  utr           String
+  screenshotUrl String
+  status        PaymentStatus @default(PENDING)
+  rejectReason  String?
+  submittedAt   DateTime      @default(now())
+  reviewedAt    DateTime?
+  reviewedById  String?
+  reviewedBy    User?         @relation("PaymentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  // The latest row per team decides the current status.
+  @@index([teamId, submittedAt])
+  @@index([status])
+}
+
+model FilmSubmission {
+  id          String           @id @default(cuid())
+  teamId      String           @unique
+  team        Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  driveUrl    String
+  title       String
+  synopsis    String
+  sdg         Int
+  credits     String?
+  status      SubmissionStatus @default(NOT_SUBMITTED)
+  submittedAt DateTime?
+  adminNote   String?
+
+  evaluations Evaluation[]
+  awards      Award[]
+
+  @@index([status])
+}
+
+model Evaluation {
+  id           String         @id @default(cuid())
+  submissionId String
+  submission   FilmSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  juryId       String
+  jury         User           @relation(fields: [juryId], references: [id], onDelete: Cascade)
+  scores       Json // keyed by criterion key
+  comment      String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([submissionId, juryId])
+  @@index([juryId])
+}
+
+model Award {
+  id           String         @id @default(cuid())
+  categoryKey  String // from the awardCategories setting
+  submissionId String
+  submission   FilmSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  note         String?
+  published    Boolean        @default(false)
+  publishedAt  DateTime?
+
+  @@index([categoryKey])
+  @@index([submissionId])
+  @@index([published])
+}
+
+model EventSetting {
+  key         String   @id
+  value       Json
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+  updatedBy   User?    @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+}
+
+/// Atomic sequences, e.g. key "team_code" for HP-SF-###.
+model Counter {
+  key   String @id
+  value Int    @default(0)
 }

@@ -3,15 +3,11 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP } from "better-auth/plugins";
-import { Resend } from "resend";
 import { db } from "@/lib/db";
+import { sendMail } from "@/lib/mailer";
 
 export const ROLES = ["PARTICIPANT", "JURY", "ADMIN"] as const;
 export type Role = (typeof ROLES)[number];
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-// Sender needs a verified Resend domain (open-questions D4).
-const FROM = process.env.EMAIL_FROM || "Short Film Competition <onboarding@resend.dev>";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, { provider: "postgresql" }),
@@ -35,13 +31,11 @@ export const auth = betterAuth({
       otpLength: 6,
       expiresIn: 600,
       async sendVerificationOTP({ email, otp }) {
-        const { error } = await resend.emails.send({
-          from: FROM,
+        await sendMail({
           to: email,
           subject: `Your code: ${otp}`,
-          text: `Your Short Film Competition sign-in code is ${otp}. It expires in 10 minutes. If you did not request it, you can ignore this email.`,
+          text: `Your Short Film Competition code is ${otp}.\n\nIt expires in 10 minutes.\n\nIf you did not request this, ignore it.`,
         });
-        if (error) throw new Error(`Could not send code: ${error.message}`);
       },
     }),
     nextCookies(), // must stay last
