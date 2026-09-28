@@ -1,0 +1,28 @@
+import { z } from "zod";
+
+/** Trimmed, required text with a friendly message. */
+export const requiredText = (label: string, max = 120) =>
+  z
+    .string({ error: `Please enter ${label}.` })
+    .trim()
+    .min(1, `Please enter ${label}.`)
+    .max(max, `${capitalise(label)} must be ${max} characters or fewer.`);
+
+function capitalise(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/** Indian mobile number, with or without +91 / 0, spaces or dashes. Normalised to +91XXXXXXXXXX. */
+export const whatsappSchema = z
+  .string({ error: "Please enter a WhatsApp number." })
+  .trim()
+  .transform((v) => v.replace(/[\s-]/g, ""))
+  .pipe(
+    z
+      .string()
+      .regex(/^(?:\+91|91|0)?[6-9]\d{9}$/, "Please enter a valid 10-digit Indian mobile number.")
+      .transform((v) => `+91${v.slice(-10)}`),
+  );
+
+export const semesterSchema = requiredText("the semester", 20);
+export const branchSchema = requiredText("the branch", 80);

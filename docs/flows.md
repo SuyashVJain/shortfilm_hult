@@ -203,6 +203,6 @@ When published: a cinematic results page listing configured categories with winn
 | Evaluation (per juror) | Not started, Saved |
 | Results | Unpublished, Published |
 
-## 9. Notifications (minimal, via Resend)
+## 9. Notifications (minimal, via Gmail SMTP, `lib/mailer.ts`)
 
 OTP code · registration received (with Team ID) · payment verified · payment rejected (with reason) · film submission opened (optional, admin-triggered). Nothing more until needed.

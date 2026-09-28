@@ -53,7 +53,7 @@ Status key: OPEN (undecided), PROPOSED (default suggested, needs confirmation), 
 | D1 | Logo files (SUAS, EF, Hult Prize, extra emblem) | DONE | White SUAS and Hult Prize logos are in `public/logo/` (web-safe copies: `suas-white.png`, `hult-prize-white.png`). The Hult Prize horizontal logo contains the "EF Hult Prize" wordmark, the Hult Prize mark, the EF mark and the shield/leaf emblem, so EF and the extra emblem appear to be covered by it. Confirm with the owner that the shield is the poster's emblem. Use as supplied. Do not redraw. |
 | D2 | Textless poster artwork | DONE | Three backdrops generated (see design-system.md). |
 | D3 | Production domain name | OPEN | Needed for QR and OTP email links. |
-| D4 | Sender email for OTP mail (Resend domain verification) | OPEN | Needs a verified domain or address. |
+| D4 | Sender email for OTP mail | DONE | Gmail SMTP (nodemailer, `lib/mailer.ts`) with a Google app password. The sender shows the Gmail address. Cap about 500 emails/day. |
 | D5 | Support contact shown on site (email / WhatsApp) | OPEN | Placeholder "Contact details will be shared". |
 | D6 | Organizer contact names to show publicly | OPEN | Not shown by default. |
 
@@ -64,7 +64,7 @@ Status key: OPEN (undecided), PROPOSED (default suggested, needs confirmation), 
 | E1 | Admin and jury account provisioning (manual seed vs invite flow) | PROPOSED: seed script for first admin, then admin creates jury accounts by email |
 | E2 | Rate limiting and abuse protection on OTP and registration | PROPOSED: basic per-IP and per-email limits |
 | E3 | Privacy notice / data handling text (collecting WhatsApp numbers, screenshots) | OPEN |
-| E4 | Email notifications (payment verified/rejected, submission opened) | PROPOSED: minimal, via Resend |
+| E4 | Email notifications (payment verified/rejected, submission opened) | PROPOSED: minimal, via Gmail SMTP (`lib/mailer.ts`) |
 | E5 | Backups and export (CSV export of teams for organizers) | PROPOSED: admin CSV export of teams and members |
 
 ## How to resolve a row
