@@ -174,7 +174,7 @@ export function HomeAccountLink() {
     <Link
       href={href}
       // Sits above the hero's 4dvh top padding; the 44px tap area is padding, the text stays small.
-      className={`${small} fixed top-0 right-0 z-40 flex min-h-11 items-start px-4 pt-[max(10px,1.2dvh)] text-[0.62rem] text-cream/70 transition-colors hover:text-cream sm:px-8 sm:text-[0.7rem]`}
+      className={`${small} absolute top-0 right-0 z-40 flex min-h-11 items-start px-4 pt-[max(10px,1.2dvh)] text-[0.62rem] text-cream/70 transition-colors hover:text-cream sm:px-8 sm:text-[0.7rem]`}
     >
       {session ? "Dashboard" : "Login"}
     </Link>
