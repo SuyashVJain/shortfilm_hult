@@ -41,7 +41,7 @@ export default async function DashboardPage() {
                 {latest ? <StatusBadge tone={PAYMENT_TONE[latest.status]}>{PAYMENT_LABEL[latest.status]}</StatusBadge> : "Not submitted"}
               </dd>
               <dt className="uppercase tracking-[0.24em] text-cream-muted">SDG</dt>
-              <dd className="text-cream">SDG {team.sdg}</dd>
+              <dd className="text-cream">{team.sdg != null ? `SDG ${team.sdg}` : "Not yet chosen"}</dd>
             </dl>
 
             {latest?.status === "REJECTED" && (

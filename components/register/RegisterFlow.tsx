@@ -5,10 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { EmailOtpForm } from "@/components/auth/EmailOtpForm";
 import { Button, FormNotice, Stepper } from "@/components/ui";
 import { registerTeam, type RegisterResult } from "@/app/(public)/register/actions";
-import { fieldErrors, filmIdeaSchema, paymentSchema, teamDetailsSchema, teamMembersSchema } from "@/lib/validation";
+import { fieldErrors, paymentSchema, teamDetailsSchema, teamMembersSchema } from "@/lib/validation";
 import { Confirmation } from "./Confirmation";
 import { StepDetails } from "./StepDetails";
-import { StepFilm } from "./StepFilm";
 import { StepMembers } from "./StepMembers";
 import { StepPayment } from "./StepPayment";
 import { StepReview } from "./StepReview";
@@ -20,7 +19,9 @@ function loadDraft(): Draft {
   try {
     const raw = sessionStorage.getItem(DRAFT_KEY);
     if (raw) {
-      const saved = JSON.parse(raw) as Partial<Draft>;
+      // Drafts saved before the film step was removed may still carry "film": drop it.
+      const { film: _legacyFilm, ...saved } = JSON.parse(raw) as Partial<Draft> & { film?: unknown };
+      void _legacyFilm;
       // Older drafts may lack newer fields (e.g. enrollment number): fill with blanks.
       return {
         ...EMPTY_DRAFT,
@@ -70,7 +71,6 @@ export function RegisterFlow({ email, settings }: Props) {
   const rules = {
     minTeamSize: settings.minTeamSize,
     maxTeamSize: settings.maxTeamSize,
-    sdgNumbers: settings.sdgThemes.map((t) => t.number),
   };
 
   function validate(s: number): Errors {
@@ -81,10 +81,8 @@ export function RegisterFlow({ email, settings }: Props) {
         : s === 2
           ? ["members", teamMembersSchema(rules).safeParse(members)]
           : s === 3
-            ? ["film", filmIdeaSchema(rules.sdgNumbers).safeParse(draft.film)]
-            : s === 4
-              ? ["payment", paymentSchema.safeParse(draft.payment)]
-              : null;
+            ? ["payment", paymentSchema.safeParse(draft.payment)]
+            : null;
     if (!result) return {};
     const [prefix, parsed] = result as [string, { success: boolean; error?: Parameters<typeof fieldErrors>[0] }];
     return parsed.success || !parsed.error ? {} : prefixed(prefix, fieldErrors(parsed.error));
@@ -101,7 +99,7 @@ export function RegisterFlow({ email, settings }: Props) {
 
   async function submit() {
     if (submitting) return; // guard against double submit
-    for (const s of [1, 2, 3, 4]) {
+    for (const s of [1, 2, 3]) {
       const found = validate(s);
       if (Object.keys(found).length) {
         goTo(s);
@@ -115,7 +113,6 @@ export function RegisterFlow({ email, settings }: Props) {
       const result = await registerTeam({
         details: draft.details,
         members: draft.members.map(({ fullName, enrollmentNumber, branch, semester }) => ({ fullName, enrollmentNumber, branch, semester })),
-        film: { ...draft.film, sdg: draft.film.sdg ?? Number.NaN },
         payment: draft.payment,
       });
       if (result.ok) {
@@ -145,7 +142,7 @@ export function RegisterFlow({ email, settings }: Props) {
       <Stepper steps={STEPS} current={step} canVisit={(i) => i >= 1 && !submitting} onVisit={goTo} />
 
       <h2 ref={headingRef} tabIndex={-1} className="mt-10 font-display text-3xl uppercase text-cream outline-none sm:text-4xl">
-        {["Verify your email", "Team details", "Team members", "Film idea", "Payment", "Review"][step]}
+        {["Verify your email", "Team details", "Team members", "Payment", "Review"][step]}
       </h2>
 
       <div className="mt-8">
@@ -158,9 +155,8 @@ export function RegisterFlow({ email, settings }: Props) {
         )}
         {step === 1 && email && <StepDetails draft={draft} setDraft={setDraft} errors={errors} settings={settings} email={email} />}
         {step === 2 && <StepMembers draft={draft} setDraft={setDraft} errors={errors} settings={settings} />}
-        {step === 3 && <StepFilm draft={draft} setDraft={setDraft} errors={errors} settings={settings} />}
-        {step === 4 && <StepPayment draft={draft} setDraft={setDraft} errors={errors} settings={settings} />}
-        {step === 5 && email && <StepReview draft={draft} email={email} settings={settings} onEdit={goTo} />}
+        {step === 3 && <StepPayment draft={draft} setDraft={setDraft} errors={errors} settings={settings} />}
+        {step === 4 && email && <StepReview draft={draft} email={email} settings={settings} onEdit={goTo} />}
       </div>
 
       {formError && (
@@ -178,7 +174,7 @@ export function RegisterFlow({ email, settings }: Props) {
           ) : (
             <span />
           )}
-          {step < 5 ? (
+          {step < STEPS.length - 1 ? (
             <Button type="button" onClick={next}>
               Continue
             </Button>

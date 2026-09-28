@@ -57,7 +57,6 @@ export default async function RegisterPage() {
     registrationFee: s.registrationFee,
     minTeamSize: s.minTeamSize,
     maxTeamSize: s.maxTeamSize,
-    sdgThemes: s.sdgThemes,
     paymentInstructions: s.paymentInstructions,
   };
 

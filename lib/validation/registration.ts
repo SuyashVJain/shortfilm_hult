@@ -1,17 +1,18 @@
 import { z } from "zod";
-import { filmIdeaSchema } from "./film";
 import { paymentSchema } from "./payment";
 import { teamDetailsSchema, teamMembersSchema } from "./team";
 
 /** Values the registration schemas need, taken from settings. */
-export type RegistrationRules = { minTeamSize: number; maxTeamSize: number; sdgNumbers: number[] };
+export type RegistrationRules = { minTeamSize: number; maxTeamSize: number };
 
-/** The whole registration payload. Used by the client per step and by the server action in full. */
+/**
+ * The whole registration payload. Used by the client per step and by the server action in full.
+ * No film idea here: SDG and film details are collected at film submission (Phase 2).
+ */
 export function registrationSchema(rules: RegistrationRules) {
   return z.object({
     details: teamDetailsSchema,
     members: teamMembersSchema(rules),
-    film: filmIdeaSchema(rules.sdgNumbers),
     payment: paymentSchema,
   });
 }

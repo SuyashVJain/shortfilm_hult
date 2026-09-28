@@ -55,7 +55,7 @@ export default async function AdminTeamsPage({ searchParams }: PageProps<"/admin
     },
     { key: "name", header: "Team name", cell: (t) => t.name },
     { key: "leader", header: "Leader", cell: (t) => t.leaderName },
-    { key: "sdg", header: "SDG", cell: (t) => t.sdg },
+    { key: "sdg", header: "SDG", cell: (t) => t.sdg ?? <span className="text-cream/45">Not yet chosen</span> },
     { key: "size", header: "Size", cell: (t) => t.size },
     {
       key: "payment",

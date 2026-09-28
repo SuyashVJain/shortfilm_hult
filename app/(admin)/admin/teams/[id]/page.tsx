@@ -104,16 +104,21 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
       </Section>
 
       <Section title="Film idea">
-        <dl>
-          <Row label="SDG">{theme ? `${theme.number} · ${theme.title}` : team.sdg}</Row>
-          <Row label="Title">{team.filmTitle}</Row>
-          <Row label="Synopsis">
-            <span className="whitespace-pre-line">{team.synopsis}</span>
-          </Row>
-          <Row label="SDG approach">
-            <span className="whitespace-pre-line">{team.sdgApproach}</span>
-          </Row>
-        </dl>
+        {/* Collected at film submission (Phase 2), so usually empty for newly registered teams. */}
+        {team.sdg == null && !team.filmTitle && !team.synopsis && !team.sdgApproach ? (
+          <p className="text-sm text-cream/60">Not yet chosen. Teams choose their SDG and film idea at film submission.</p>
+        ) : (
+          <dl>
+            <Row label="SDG">{theme ? `${theme.number} · ${theme.title}` : (team.sdg ?? "Not yet chosen")}</Row>
+            <Row label="Title">{team.filmTitle ?? "Not yet chosen"}</Row>
+            <Row label="Synopsis">
+              <span className="whitespace-pre-line">{team.synopsis ?? "Not yet chosen"}</span>
+            </Row>
+            <Row label="SDG approach">
+              <span className="whitespace-pre-line">{team.sdgApproach ?? "Not yet chosen"}</span>
+            </Row>
+          </dl>
+        )}
       </Section>
 
       <Section title={`Payments (${team.payments.length})`}>

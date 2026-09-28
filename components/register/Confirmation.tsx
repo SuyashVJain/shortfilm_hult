@@ -1,8 +1,8 @@
 import { ButtonLink } from "@/components/ui";
 
-type Props = { teamCode: string; sdg: number; filmTitle: string; email: string; emailSent: boolean };
+type Props = { teamCode: string; email: string; emailSent: boolean };
 
-export function Confirmation({ teamCode, sdg, filmTitle, email, emailSent }: Props) {
+export function Confirmation({ teamCode, email, emailSent }: Props) {
   return (
     <div className="mt-12" role="status">
       <p className="text-[0.7rem] uppercase tracking-label text-red">Registration received</p>
@@ -15,14 +15,6 @@ export function Confirmation({ teamCode, sdg, filmTitle, email, emailSent }: Pro
         <div className="grid grid-cols-[8.5rem_1fr] gap-3">
           <dt className="uppercase tracking-[0.16em] text-cream/50">Payment</dt>
           <dd className="text-cream">Needs review</dd>
-        </div>
-        <div className="grid grid-cols-[8.5rem_1fr] gap-3">
-          <dt className="uppercase tracking-[0.16em] text-cream/50">Selected SDG</dt>
-          <dd className="text-cream">SDG {sdg}</dd>
-        </div>
-        <div className="grid grid-cols-[8.5rem_1fr] gap-3">
-          <dt className="uppercase tracking-[0.16em] text-cream/50">Film</dt>
-          <dd className="break-words text-cream">{filmTitle}</dd>
         </div>
       </dl>
 
