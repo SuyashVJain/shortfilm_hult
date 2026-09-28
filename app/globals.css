@@ -53,8 +53,8 @@ html {
   color-scheme: dark;
 }
 
+/* No body background: it would paint over the fixed BackgroundStage. */
 body {
-  background: var(--color-bg);
   color: var(--color-cream);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
