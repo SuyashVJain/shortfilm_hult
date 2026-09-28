@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Anton, Inter, Yellowtail } from "next/font/google";
+import { Anton, Inter, Mr_Dafoe } from "next/font/google";
 import { Loader, PageShell, loaderBootScript } from "@/components/cinema";
 import "./globals.css";
 
@@ -10,8 +10,8 @@ const anton = Anton({
   display: "swap",
 });
 
-const yellowtail = Yellowtail({
-  variable: "--font-yellowtail",
+const mrDafoe = Mr_Dafoe({
+  variable: "--font-mr-dafoe",
   weight: "400",
   subsets: ["latin"],
   display: "swap",
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // suppressHydrationWarning: the boot script may set data-loader before hydration.
     <html
       lang="en"
-      className={`${anton.variable} ${yellowtail.variable} ${inter.variable} antialiased`}
+      className={`${anton.variable} ${mrDafoe.variable} ${inter.variable} antialiased`}
       suppressHydrationWarning
     >
       <head>
