@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { Anton, Inter, Mr_Dafoe } from "next/font/google";
 import { Loader, PageShell, loaderBootScript } from "@/components/cinema";
@@ -52,6 +53,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-dvh text-cream">
         <PageShell>{children}</PageShell>
         <Loader />
+        {/* Performance metrics only; renders no visible element. */}
+        <SpeedInsights />
       </body>
     </html>
   );
