@@ -16,7 +16,7 @@
   --color-sdg16: #1f7bc4;
 
   --font-display: var(--font-anton), "Bebas Neue", Impact, sans-serif;
-  --font-script: var(--font-yellowtail), "Brush Script MT", cursive;
+  --font-script: var(--font-mr-dafoe), "Brush Script MT", cursive;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --tracking-label: 0.32em;
@@ -26,21 +26,7 @@
 
   --ease-cinema: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --animate-grain: grain 8s steps(10) infinite;
   --animate-strip: strip 90s linear infinite;
-
-  @keyframes grain {
-    0%, 100% { transform: translate(0, 0); }
-    10% { transform: translate(-5%, -10%); }
-    20% { transform: translate(-15%, 5%); }
-    30% { transform: translate(7%, -25%); }
-    40% { transform: translate(-5%, 25%); }
-    50% { transform: translate(-15%, 10%); }
-    60% { transform: translate(15%, 0%); }
-    70% { transform: translate(0%, 15%); }
-    80% { transform: translate(3%, 35%); }
-    90% { transform: translate(-10%, 10%); }
-  }
 
   @keyframes strip {
     from { transform: translateX(0); }
@@ -90,7 +76,11 @@ body {
   }
 }
 .hero-title { font-size: var(--t); }
-.hero-script { font-size: calc(var(--t) * 0.62); }
+/* Mr Dafoe script, ~18% up from the first fit. Scales with --t (min of vw, dvh). */
+.hero-script { font-size: calc(var(--t) * 0.59); }
+@media (min-width: 640px) {
+  .hero-script { font-size: calc(var(--t) * 0.66); }
+}
 .hero-label { font-size: clamp(9px, min(1.6dvh, 2.8vw), 13px); }
 .hero-logo-suas { height: clamp(28px, min(7dvh, 12vw), 76px); }
 .hero-logo-hult { height: clamp(16px, min(4dvh, 7vw), 42px); }
@@ -104,6 +94,19 @@ body {
 /* Short landscape phones: drop the tagline so title and buttons fit. */
 @media (orientation: landscape) and (max-height: 480px) {
   .hero-tagline { display: none; }
+}
+
+/* Film grain: tiny stepped background-position shift, static under reduced motion. */
+.film-grain { animation: grain-shift 1s steps(4) infinite; }
+@keyframes grain-shift {
+  0% { background-position: 0 0; }
+  25% { background-position: -37px 23px; }
+  50% { background-position: 51px -41px; }
+  75% { background-position: -19px -67px; }
+  100% { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .film-grain { animation: none !important; }
 }
 
 /* Countdown loader (components/cinema/Loader.tsx) */

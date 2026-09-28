@@ -55,13 +55,30 @@ function Fade({
   );
 }
 
+/** Unmasked fade and small rise, so script swashes are never clipped. */
+function ScriptReveal({ children, delay }: { children: React.ReactNode; delay: number }) {
+  const reduce = useReducedMotion();
+  const go = useLoaderDone();
+  const from = { opacity: 0, y: reduce ? 0 : "0.15em" };
+  return (
+    <motion.span
+      className="block"
+      initial={from}
+      animate={go ? { opacity: 1, y: 0 } : from}
+      transition={{ duration: reduce ? 0.3 : 1.1, delay: reduce ? 0 : delay, ease }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
 /** Brush-stroke underline under "Competition". */
 function Swoosh() {
   const reduce = useReducedMotion();
   const go = useLoaderDone();
   const from = { pathLength: reduce ? 1 : 0, opacity: reduce ? 0 : 1 };
   return (
-    <svg viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden className="absolute -bottom-[0.18em] left-[4%] h-[0.28em] w-[96%] overflow-visible">
+    <svg viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden className="absolute bottom-[0.04em] left-[10%] h-[0.24em] w-[86%] overflow-visible">
       <motion.path
         d="M4 30 C 140 12, 330 6, 596 10 C 420 14, 230 22, 60 36 Z"
         fill="var(--color-red)"
@@ -76,11 +93,6 @@ function Swoosh() {
 export function Hero() {
   return (
     <section className="hero relative flex flex-col items-center justify-between overflow-hidden text-center">
-      {/* Gentle shade behind the tagline and buttons only */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-t from-bg/70 via-bg/30 to-transparent"
-      />
       <LightLeak className="top-[18%] left-1/2 h-[45dvh] w-[90vw] max-w-5xl -translate-x-1/2" intensity={0.4} />
 
       {/* Top: partner logos */}
@@ -96,8 +108,11 @@ export function Hero() {
       {/* Middle: eyebrow and lockup */}
       <div className="flex min-h-0 flex-col items-center" style={{ gap: "var(--gap)" }}>
         <Fade delay={0.2}>
-          <p className="hero-label font-medium uppercase tracking-label text-cream/85">
-            Real Stories <span className="mx-2 text-red">|</span> Brighter Tomorrows
+          {/* Phones: two even lines, divider hidden. sm+: one line with the red divider. */}
+          <p className="hero-label font-medium uppercase leading-relaxed tracking-[0.22em] text-balance text-cream/85 sm:tracking-label">
+            <span className="block sm:inline">Real Stories</span>
+            <span className="mx-2 hidden text-red sm:inline">|</span>
+            <span className="block sm:inline">Brighter Tomorrows</span>
           </p>
         </Fade>
 
@@ -110,13 +125,14 @@ export function Hero() {
               <Line delay={0.95}>Film</Line>
             </span>
           </span>
-          <span aria-hidden className="hero-script relative mt-[-0.42em] block font-script leading-none text-red sm:mt-[-0.5em]">
-            <Line delay={1.7} className="overflow-visible! pb-[0.25em]">
-              <span className="relative inline-block rotate-[-7deg] px-[0.1em] drop-shadow-[0_6px_24px_rgb(0_0_0/0.65)]">
+          <span aria-hidden className="hero-script relative mt-[-0.58em] block font-script leading-none text-red sm:mt-[-0.64em]">
+            {/* No mask here: Mr Dafoe's C, p and swashes reach far outside the line box. */}
+            <ScriptReveal delay={1.7}>
+              <span className="relative inline-block -rotate-6 px-[0.18em] pt-[0.1em] pb-[0.3em] drop-shadow-[0_6px_24px_rgb(0_0_0/0.65)]">
                 Competition
                 <Swoosh />
               </span>
-            </Line>
+            </ScriptReveal>
           </span>
         </h1>
       </div>
@@ -130,7 +146,7 @@ export function Hero() {
             className="pointer-events-none absolute -inset-x-16 -inset-y-8 -z-10 blur-xl"
             style={{ background: "radial-gradient(ellipse at center, rgb(5 5 5 / 0.6) 0%, rgb(5 5 5 / 0.3) 45%, transparent 75%)" }}
           />
-          <p className="hero-label font-medium uppercase leading-relaxed tracking-label text-cream/80 [text-shadow:0_1px_12px_rgb(0_0_0/0.6)]">
+          <p className="hero-label font-medium uppercase leading-relaxed tracking-[0.18em] text-balance text-cream/80 sm:tracking-label [text-shadow:0_1px_12px_rgb(0_0_0/0.6)]">
             Four goals. Countless perspectives.
             <br className="sm:hidden" /> Your story can make a difference.
           </p>

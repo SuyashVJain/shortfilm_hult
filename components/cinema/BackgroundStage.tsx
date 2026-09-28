@@ -1,24 +1,26 @@
-"use client";
-
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 
 type Props = {
-  /** "cinematic" for public pages, "calm" for dashboards (near-solid dark). */
-  variant?: "cinematic" | "calm";
+  /**
+   * Static darkness level, set per page or layout (no scroll listeners).
+   * "hero": image reads clearly. "content": darker for long reading pages.
+   * "calm": near-solid dark for dashboards.
+   */
+  dim?: "hero" | "content" | "calm";
+};
+
+const FLAT: Record<"hero" | "content", string> = {
+  hero: "bg-bg/35",
+  content: "bg-bg/80",
 };
 
 /**
- * Fixed site backdrop. Portrait image on mobile, landscape on desktop.
- * A dark overlay deepens with scroll: bright in the hero, ~85% dark by
- * the time content sections arrive.
+ * Fixed site backdrop, pure CSS layers:
+ * image -> flat overlay -> soft legibility shades. Portrait image on mobile.
+ * No JS-driven opacity and no fade-in, so nothing flashes after the loader.
  */
-export function BackgroundStage({ variant = "cinematic" }: Props) {
-  const reduce = useReducedMotion();
-  const { scrollY } = useScroll();
-  const overlay = useTransform(scrollY, [0, 700], [0.12, 0.85], { clamp: true });
-
-  if (variant === "calm") {
+export function BackgroundStage({ dim = "hero" }: Props) {
+  if (dim === "calm") {
     return <div aria-hidden className="fixed inset-0 z-0 bg-bg" />;
   }
 
@@ -40,16 +42,18 @@ export function BackgroundStage({ variant = "cinematic" }: Props) {
         sizes="100vw"
         className="hidden object-cover object-center md:block"
       />
-      {/* Scroll-linked darkening */}
-      <motion.div
-        className="absolute inset-0 bg-bg"
-        style={{ opacity: reduce ? 0.6 : overlay }}
-      />
-      {/* Soft edge shade, light enough that the top of the image still reads */}
-      <div
-        className="absolute inset-0"
-        style={{ background: "radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgb(5 5 5 / 0.35) 100%)" }}
-      />
+      <div className={`absolute inset-0 ${FLAT[dim]}`} />
+      {dim === "hero" && (
+        <>
+          {/* Light pool behind the title zone */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "radial-gradient(ellipse 70% 40% at 50% 45%, rgb(5 5 5 / 0.25) 0%, transparent 70%)" }}
+          />
+          {/* Gentle shade behind the tagline and buttons */}
+          <div className="absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-t from-bg/65 via-bg/25 to-transparent" />
+        </>
+      )}
     </div>
   );
 }
