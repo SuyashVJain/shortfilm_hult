@@ -70,6 +70,67 @@ body {
   outline-offset: 3px;
 }
 
+/*
+ * Home hero: exactly one screen, sized from whichever side is limiting.
+ * --t is the SHORT FILM size; everything else derives from dvh/vw.
+ * Unlayered on purpose so it overrides component utility classes.
+ */
+.hero {
+  --t: min(30vw, 18dvh); /* stacked SHORT / FILM */
+  --gap: 2.2dvh;
+  height: 100vh;
+  height: 100dvh;
+  padding-block: 4dvh;
+  padding-inline: 1.5rem;
+}
+@media (min-width: 640px) {
+  .hero {
+    --t: min(16vw, 28dvh); /* one line */
+    padding-inline: 2.5rem;
+  }
+}
+.hero-title { font-size: var(--t); }
+.hero-script { font-size: calc(var(--t) * 0.62); }
+.hero-label { font-size: clamp(9px, min(1.6dvh, 2.8vw), 13px); }
+.hero-logo-suas { height: clamp(28px, min(7dvh, 12vw), 76px); }
+.hero-logo-hult { height: clamp(16px, min(4dvh, 7vw), 42px); }
+.hero-logo-rule { height: clamp(16px, 4dvh, 40px); }
+.hero-btn {
+  min-height: clamp(38px, 6.5dvh, 52px);
+  padding-block: 0;
+  padding-inline: clamp(16px, 3dvh, 28px);
+  font-size: clamp(10px, 1.5dvh, 12px);
+}
+/* Short landscape phones: drop the tagline so title and buttons fit. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .hero-tagline { display: none; }
+}
+
+/* Countdown loader (components/cinema/Loader.tsx) */
+html:not([data-loader="off"]) body { overflow: hidden; }
+html[data-loader="off"] #cinema-loader { display: none; }
+.loader-sweep { animation: loader-sweep 1s linear infinite; }
+.loader-numeral { animation: loader-numeral 0.8s ease-out both; }
+.loader-flicker {
+  background: radial-gradient(ellipse at center, rgb(245 158 11 / 0.07) 0%, transparent 65%);
+  animation: loader-flicker 0.24s steps(2) infinite;
+}
+@keyframes loader-sweep { to { transform: rotate(360deg); } }
+@keyframes loader-numeral {
+  0% { opacity: 0; }
+  15%, 80% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+@keyframes loader-flicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes loader-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .loader-countdown, .loader-flicker { display: none; }
+  .loader-label { animation: loader-fade 0.6s ease-out both !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

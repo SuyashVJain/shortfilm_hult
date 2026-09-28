@@ -16,14 +16,14 @@ type Props = {
 export function BackgroundStage({ variant = "cinematic" }: Props) {
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
-  const overlay = useTransform(scrollY, [0, 700], [0.35, 0.85], { clamp: true });
+  const overlay = useTransform(scrollY, [0, 700], [0.12, 0.85], { clamp: true });
 
   if (variant === "calm") {
     return <div aria-hidden className="fixed inset-0 z-0 bg-bg" />;
   }
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-bg">
+    <div aria-hidden className="pointer-events-none fixed top-0 left-0 z-0 h-dvh w-screen overflow-hidden bg-bg">
       <Image
         src="/cinema/bg-mobile.webp"
         alt=""
@@ -45,8 +45,11 @@ export function BackgroundStage({ variant = "cinematic" }: Props) {
         className="absolute inset-0 bg-bg"
         style={{ opacity: reduce ? 0.6 : overlay }}
       />
-      {/* Keep the headline zone readable regardless of scroll */}
-      <div className="absolute inset-x-0 top-0 h-2/3 bg-linear-to-b from-bg/70 to-transparent" />
+      {/* Soft edge shade, light enough that the top of the image still reads */}
+      <div
+        className="absolute inset-0"
+        style={{ background: "radial-gradient(ellipse 120% 90% at 50% 45%, transparent 55%, rgb(5 5 5 / 0.35) 100%)" }}
+      />
     </div>
   );
 }

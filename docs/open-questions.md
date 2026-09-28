@@ -50,7 +50,7 @@ Status key: OPEN (undecided), PROPOSED (default suggested, needs confirmation), 
 
 | # | Item | Status | Notes |
 |---|---|---|---|
-| D1 | Logo files (SUAS, EF, Hult Prize, extra emblem) | OPEN | Owner supplies. Do not redraw. |
+| D1 | Logo files (SUAS, EF, Hult Prize, extra emblem) | DONE | White SUAS and Hult Prize logos are in `public/logo/` (web-safe copies: `suas-white.png`, `hult-prize-white.png`). The Hult Prize horizontal logo contains the "EF Hult Prize" wordmark, the Hult Prize mark, the EF mark and the shield/leaf emblem, so EF and the extra emblem appear to be covered by it. Confirm with the owner that the shield is the poster's emblem. Use as supplied. Do not redraw. |
 | D2 | Textless poster artwork | DONE | Three backdrops generated (see design-system.md). |
 | D3 | Production domain name | OPEN | Needed for QR and OTP email links. |
 | D4 | Sender email for OTP mail (Resend domain verification) | OPEN | Needs a verified domain or address. |
