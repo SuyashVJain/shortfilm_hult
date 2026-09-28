@@ -81,7 +81,9 @@ export function HomeSections({ settings }: { settings: Settings }) {
       <section className="border-t border-divider py-28">
         <Container>
           <Reveal className="flex flex-col items-start gap-8">
+            {/* Hidden until prizes are announced. Restore by uncommenting:
             <p className="text-[0.7rem] uppercase tracking-label text-cream-muted">{settings.prizeText}</p>
+            */}
             <p className="font-display text-[clamp(3rem,10vw,7rem)] uppercase leading-[0.9] text-cream">
               Your story
               <br />
