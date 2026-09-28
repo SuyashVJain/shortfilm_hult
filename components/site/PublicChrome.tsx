@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { BackgroundStage } from "@/components/cinema/BackgroundStage";
-import { HomeAccountLink, SiteNav } from "./SiteNav";
+import { SiteNav } from "./SiteNav";
 
 /** Backdrop dim is per page: bright hero on "/", darker content elsewhere. */
 export function PublicBackdrop() {
@@ -10,8 +10,8 @@ export function PublicBackdrop() {
   return <BackgroundStage dim={pathname === "/" ? "hero" : "content"} />;
 }
 
-/** Full nav everywhere except "/", which only gets a corner account link. */
+/** Same nav everywhere; on "/" it overlays the hero. */
 export function PublicNav() {
   const pathname = usePathname();
-  return pathname === "/" ? <HomeAccountLink /> : <SiteNav />;
+  return <SiteNav overlay={pathname === "/"} />;
 }
