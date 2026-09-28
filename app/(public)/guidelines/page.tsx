@@ -19,7 +19,8 @@ const TBA = [
   "Language",
   "Music and copyright",
   "Use of AI",
-  "Final prize distribution",
+  // Hidden until prizes are announced. Restore by uncommenting:
+  // "Final prize distribution",
 ];
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
