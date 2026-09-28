@@ -1,10 +1,11 @@
 import { z } from "zod";
-import { branchSchema, requiredText, semesterSchema, whatsappSchema } from "./common";
+import { branchSchema, enrollmentSchema, requiredText, semesterSchema, whatsappSchema } from "./common";
 
 /** Registration step 1. Leader email comes from the verified session, not the form. */
 export const teamDetailsSchema = z.object({
   teamName: requiredText("a team name", 60),
   leaderName: requiredText("the team leader's name", 80),
+  enrollmentNumber: enrollmentSchema,
   whatsapp: whatsappSchema,
   branch: branchSchema,
   semester: semesterSchema,
@@ -18,6 +19,7 @@ export function teamNameKey(name: string) {
 
 export const memberSchema = z.object({
   fullName: requiredText("the member's full name", 80),
+  enrollmentNumber: enrollmentSchema,
   branch: branchSchema,
   semester: semesterSchema,
 });

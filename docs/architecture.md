@@ -66,7 +66,7 @@ Seven tables plus the auth tables Better Auth manages. Field names are indicativ
 | `createdAt`, `updatedAt` | |
 
 ### TeamMember
-`id`, `teamId`, `fullName`, `branch`, `semester`, `isLeader` (the leader is member #1 automatically and counts toward 2–7). Enforced: total members between `minTeamSize` and `maxTeamSize` from settings.
+`id`, `teamId`, `fullName`, `enrollmentNumber`, `branch`, `semester`, `isLeader` (the leader is member #1 automatically and counts toward 2–7). Enforced: total members between `minTeamSize` and `maxTeamSize` from settings.
 
 ### Payment
 `id`, `teamId`, `amount` (snapshot of the fee at submission), `utr`, `screenshotUrl`, `status` (PENDING | VERIFIED | REJECTED), `rejectReason`, `submittedAt`, `reviewedAt`, `reviewedById` (→ User). One team can have several rows (resubmission after rejection). The latest row decides the current status.

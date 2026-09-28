@@ -78,7 +78,13 @@ export async function registerTeam(input: RegistrationInput): Promise<RegisterRe
           locked: false,
           members: {
             create: [
-              { fullName: details.leaderName, branch: details.branch, semester: details.semester, isLeader: true },
+              {
+                fullName: details.leaderName,
+                enrollmentNumber: details.enrollmentNumber,
+                branch: details.branch,
+                semester: details.semester,
+                isLeader: true,
+              },
               ...members.map((m) => ({ ...m, isLeader: false })),
             ],
           },

@@ -16,7 +16,12 @@ export function registrationSchema(rules: RegistrationRules) {
   });
 }
 
-export type RegistrationInput = z.input<ReturnType<typeof registrationSchema>>;
+/**
+ * What the form sends: plain strings (a dropdown value is only a string until
+ * validated), so the server action takes this loose shape and validates it.
+ */
+type Loose<T> = T extends (infer U)[] ? Loose<U>[] : T extends object ? { [K in keyof T]: Loose<T[K]> } : T extends string ? string : T;
+export type RegistrationInput = Loose<z.input<ReturnType<typeof registrationSchema>>>;
 export type RegistrationData = z.output<ReturnType<typeof registrationSchema>>;
 
 /** Flatten Zod issues to { "details.teamName": "message" } (first message per path). */

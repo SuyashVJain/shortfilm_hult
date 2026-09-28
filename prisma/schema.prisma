@@ -141,10 +141,11 @@ model TeamMember {
   id       String  @id @default(cuid())
   teamId   String
   team     Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  fullName String
-  branch   String
-  semester String
-  isLeader Boolean @default(false)
+  fullName         String
+  enrollmentNumber String
+  branch           String
+  semester         String
+  isLeader         Boolean @default(false)
 
   @@index([teamId])
 }
