@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLoaderDone } from "@/components/cinema";
 import { authClient } from "@/lib/auth-client";
 import { homeForRole, toRole } from "@/lib/roles";
+import { PartnerLogos } from "@/components/ui";
 import { SignOutButton } from "./SignOutButton";
 import { Wordmark } from "./Wordmark";
 
@@ -18,6 +19,10 @@ const LINKS = [
 ];
 
 const small = "text-[0.7rem] font-medium uppercase tracking-[0.24em]";
+// Links: tighter at 1024px so the three zones fit, full spacing from 1280px.
+const linkText = "text-[0.68rem] font-medium uppercase tracking-[0.14em] xl:text-[0.75rem] xl:tracking-[0.2em]";
+const outlined =
+  "inline-flex h-10 items-center border border-cream/60 px-4 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-cream transition-colors duration-300 hover:border-cream hover:bg-cream hover:text-bg";
 
 /** Login, or Dashboard + Sign out when signed in. */
 function AccountLinks({ className = "", onNavigate }: { className?: string; onNavigate?: () => void }) {
@@ -25,7 +30,7 @@ function AccountLinks({ className = "", onNavigate }: { className?: string; onNa
   if (isPending) return <span className={className} />;
   if (!session) {
     return (
-      <Link href="/login" onClick={onNavigate} className={`${small} text-cream/70 transition-colors hover:text-cream ${className}`}>
+      <Link href="/login" onClick={onNavigate} className={`${outlined} ${className}`}>
         Login
       </Link>
     );
@@ -35,18 +40,19 @@ function AccountLinks({ className = "", onNavigate }: { className?: string; onNa
       <Link
         href={homeForRole(toRole(session.user.role))}
         onClick={onNavigate}
-        className={`${small} text-cream/80 transition-colors hover:text-cream`}
+        className={outlined}
       >
         Dashboard
       </Link>
-      <SignOutButton className={`${small} text-cream/55 transition-colors hover:text-cream`} />
+      <SignOutButton className={`${small} min-h-10 text-cream/70 transition-colors hover:text-cream`} />
     </span>
   );
 }
 
 /**
  * Minimal site nav (design-system §10).
- * `overlay` (home only): transparent over the hero, no wordmark, fades in after the loader.
+ * `overlay` (home only): transparent over the hero, partner logos instead of the wordmark,
+ * fades in after the loader.
  */
 export function SiteNav({ overlay = false }: { overlay?: boolean }) {
   const pathname = usePathname();
@@ -100,20 +106,32 @@ export function SiteNav({ overlay = false }: { overlay?: boolean }) {
       )}
       <nav
         aria-label="Main"
-        className={`relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 sm:px-10 lg:px-16 ${
+        // Three zones on the same container as the page sections: brand | links | account.
+        className={`relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 sm:px-10 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-16 ${
           overlay ? "h-(--nav-h) transition-opacity duration-1000 ease-out" : "py-5"
         }`}
         style={overlay ? { opacity: loaderDone ? 1 : 0 } : undefined}
       >
-        {overlay ? <span aria-hidden className="hidden lg:block" /> : <Wordmark />}
+        <div className="flex items-center lg:justify-self-start">
+          {overlay ? (
+            <PartnerLogos
+              className="gap-3! xl:gap-5!"
+              suasClassName="h-[calc(var(--nav-h)*0.78)]"
+              hultClassName="hidden h-[calc(var(--nav-h)*0.4)] sm:block"
+              ruleClassName="hidden h-[calc(var(--nav-h)*0.4)] sm:block"
+            />
+          ) : (
+            <Wordmark />
+          )}
+        </div>
 
-        <ul className="hidden items-center gap-7 lg:flex">
+        <ul className="hidden items-center gap-5 lg:flex xl:gap-9">
           {LINKS.map((l) => (
             <li key={l.href}>
               <Link
                 href={l.href}
                 aria-current={isActive(l.href) ? "page" : undefined}
-                className={`${small} transition-colors hover:text-cream ${
+                className={`${linkText} flex h-10 items-center decoration-red decoration-2 underline-offset-8 transition-colors hover:text-cream aria-[current=page]:underline ${
                   l.href === "/register"
                     ? overlay
                       ? "text-[#ff4d5c] hover:text-[#ff6b77]" // lighter red: AA contrast over the backdrop
@@ -132,7 +150,7 @@ export function SiteNav({ overlay = false }: { overlay?: boolean }) {
         </ul>
 
         {/* Separated account action */}
-        <div className="hidden border-l border-divider pl-7 lg:block">
+        <div className="hidden items-center lg:flex lg:justify-self-end">
           <AccountLinks />
         </div>
 

@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { LightLeak, useLoaderDone } from "@/components/cinema";
-import { ButtonLink, PartnerLogos } from "@/components/ui";
+import { ButtonLink } from "@/components/ui";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -95,18 +95,8 @@ export function Hero() {
     <section className="hero relative flex flex-col items-center justify-between overflow-hidden text-center">
       <LightLeak className="top-[18%] left-1/2 h-[45dvh] w-[90vw] max-w-5xl -translate-x-1/2" intensity={0.4} />
 
-      {/* Top: partner logos */}
-      <Fade delay={0.1} className="shrink-0">
-        <PartnerLogos
-          className="gap-[min(2.5dvh,4vw)]!"
-          suasClassName="hero-logo-suas"
-          hultClassName="hero-logo-hult"
-          ruleClassName="hero-logo-rule"
-        />
-      </Fade>
-
-      {/* Middle: eyebrow and lockup */}
-      <div className="flex min-h-0 flex-col items-center" style={{ gap: "var(--gap)" }}>
+      {/* Middle: eyebrow and lockup, centred in the space below the nav (partner logos live in the nav) */}
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center" style={{ gap: "var(--gap)" }}>
         <Fade delay={0.2}>
           {/* Phones: two even lines, divider hidden. sm+: one line with the red divider. */}
           <p className="hero-label font-medium uppercase leading-relaxed tracking-[0.22em] text-balance text-cream/85 sm:tracking-label">
