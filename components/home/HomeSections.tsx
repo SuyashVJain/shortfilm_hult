@@ -21,7 +21,7 @@ export function HomeSections({ settings }: { settings: Settings }) {
         <Container>
           <NumbersBand settings={settings} />
           <Reveal>
-            <p className="mt-14 max-w-[55ch] text-lg leading-relaxed text-cream/75">
+            <p className="mt-14 max-w-[52ch] text-lg leading-relaxed text-cream/75">
               A short film around one of four UN Sustainable Development Goals. Open to all SUAS students.
             </p>
           </Reveal>
