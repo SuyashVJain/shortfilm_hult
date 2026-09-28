@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { Anton, Inter, Mr_Dafoe } from "next/font/google";
@@ -53,8 +54,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-dvh text-cream">
         <PageShell>{children}</PageShell>
         <Loader />
-        {/* Performance metrics only; renders no visible element. */}
+        {/* Page views and performance metrics only; neither renders a visible element. */}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
