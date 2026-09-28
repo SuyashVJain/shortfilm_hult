@@ -5,3 +5,6 @@ export { SectionHeading } from "./SectionHeading";
 export { PartnerLogos } from "./PartnerLogos";
 export { Field, Input, Textarea, Select, FormNotice } from "./Form";
 export { Stepper } from "./Stepper";
+export { StatusBadge } from "./StatusBadge";
+export { StatBlock } from "./StatBlock";
+export { DataTable, type Column } from "./DataTable";

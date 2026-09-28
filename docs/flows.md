@@ -66,11 +66,13 @@ REGISTRATION RECEIVED
 Your registration has been successfully submitted.
 
 Team ID:        HP-SF-027
-Payment:        Pending Verification
+Payment:        Needs review
 Selected SDG:   SDG 11
 Film:           The Last Train
 ```
-CTA: **GO TO DASHBOARD**. Also send a confirmation email with the Team ID. The participant is already logged in.
+CTA: **GO TO DASHBOARD**. Also send a confirmation email with the Team ID. The participant is already logged in. The screen and email say the organisers will check the payment and the team can already use its dashboard.
+
+**Payment is optimistic:** a registered team has full access immediately while its payment is PENDING ("Needs review"). The admin later verifies or rejects it. Payment status is a review flag, not an access gate.
 
 ### Error and edge handling
 - Duplicate team name → inline error.
@@ -97,7 +99,7 @@ TEAM ID  HP-SF-027
 ```
 
 ### Status block
-- **Payment:** Pending / Verified / Rejected (with the admin's reason if rejected, and a "Resubmit payment" action)
+- **Payment:** Needs review / Verified / Rejected (with the admin's reason if rejected, and a "Resubmit payment" action)
 - **Registration:** Submitted / Approved
 - **Film submission:** Not Open / Open / Submitted / Under Review
 
@@ -110,7 +112,7 @@ The states are computed, not manual (see `architecture.md` §5). No dates shown 
 
 ### Team (`/dashboard/team`)
 - Lists all members with branch and semester.
-- The team leader can edit team details and add/remove members **only while the registration is editable**. Once locked, all controls are disabled with a clear note.
+- The team leader can edit team details and add/remove members **only while the registration is editable**: until the admin locks it or the registration deadline passes. Payment status does not affect editing. Once locked, all controls are disabled with a clear note.
 - Member-count bounds still apply on edit (2–7).
 
 ### Payment (`/dashboard/payment`)
@@ -126,7 +128,7 @@ Shows the latest payment status, UTR and screenshot. If rejected: shows reason p
   - Credits
 - No other required fields until final submission rules are defined.
 - After submit: shows status (Submitted → Under Review, etc.) with the submitted details. Whether teams may edit or replace the link after submitting is TBA (open question), so default to allowed until admin marks Under Review.
-- Only reachable if payment is VERIFIED (proposed: unverified teams cannot submit). Confirm.
+- Allowed when the latest payment is PENDING or VERIFIED. Blocked only while the latest payment is REJECTED (the team resubmits payment first).
 
 ---
 
@@ -135,13 +137,13 @@ Shows the latest payment status, UTR and screenshot. If rejected: shows reason p
 Efficient and dense. Desktop-first, with usable mobile fallback.
 
 ### Overview
-Stat blocks: **Total Teams · Payments Pending · Registered Teams (payment verified) · Films Submitted · Evaluations Completed**. Quick links to the payment queue.
+Stat blocks: **Total Teams · Payments to Review · Verified · Rejected · Films Submitted · Evaluations Completed** (payment counts use each team's latest payment). Quick links to the payment queue.
 
 ### Teams (`/admin/teams`)
 Table columns: Team ID · Team Name · Team Leader · SDG · Team Size · Payment · Registration · Film · Status. Search, filter (SDG, payment, film status), sort, CSV export. Click a row → **team detail**: leader contact, all members, film idea, payment records with screenshot, submission, evaluation summary, lock/unlock editing.
 
 ### Payment verification (`/admin/payments`)
-Queue defaulting to Pending. Each item shows Team, Transaction ID, Screenshot (zoomable), Amount, Date. Actions: **VERIFY PAYMENT** and **REJECT PAYMENT**. Rejecting requires a reason. The participant dashboard updates immediately. Optional email notification.
+Tabs Needs review (default) · Verified · Rejected. Each item shows Team, Transaction ID, Screenshot (zoomable), Amount, Date. Actions: **VERIFY PAYMENT** and **REJECT PAYMENT**. Rejecting requires a reason. Teams already have access while their payment is under review; this is a review step, not an access gate. The participant dashboard updates immediately and the leader gets an email.
 
 ### Submissions (`/admin/submissions`)
 Table: Team · Film · SDG · Submission Status (Not Submitted, Submitted, Under Review, Approved, Rejected). Open the Drive link to preview. Change status, add an admin note. Flag broken or restricted links, since the film cannot be opened if sharing is off, and the admin can mark it and request a fix.

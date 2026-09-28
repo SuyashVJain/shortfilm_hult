@@ -116,7 +116,8 @@ Where the Prisma schema differs from the names above:
 - **Payment status shown to team** = status of the latest Payment row.
 - **Film submission stage** = NOT_OPEN if `submissionOpen` is false, else OPEN, then SUBMITTED / UNDER_REVIEW etc. from `FilmSubmission.status`.
 - **Timeline** on the dashboard is computed from payment status, submission state, evaluation state and results published flag.
-- **Editable?** = not locked AND registration deadline not passed (unless admin overrides) AND payment not yet verified (proposed, see open-questions B5).
+- **Editable?** = not locked AND registration deadline not passed. Payment status does not affect editing (open-questions B5).
+- **Payment is optimistic.** A registered team gets full access immediately with its payment PENDING ("Needs review"). The admin later verifies or rejects it against the screenshot and UTR. Payment status is a review flag, not an access gate, except that film submission is blocked while the latest payment is REJECTED.
 
 ## 6. Route map
 
