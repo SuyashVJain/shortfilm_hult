@@ -1,0 +1,12 @@
+import { BackgroundStage, FilmGrain, Vignette } from "@/components/cinema";
+
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <BackgroundStage />
+      <Vignette />
+      <FilmGrain />
+      <main className="relative">{children}</main>
+    </>
+  );
+}
