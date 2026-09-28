@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLoaderDone } from "@/components/cinema";
 import { authClient } from "@/lib/auth-client";
 import { homeForRole, toRole } from "@/lib/roles";
-import { PartnerLogos } from "@/components/ui";
+import { NavLogos } from "./NavLogos";
 import { SignOutButton } from "./SignOutButton";
 import { Wordmark } from "./Wordmark";
 
@@ -19,8 +19,10 @@ const LINKS = [
 ];
 
 const small = "text-[0.7rem] font-medium uppercase tracking-[0.24em]";
-// Links: tighter at 1024px so the three zones fit, full spacing from 1280px.
-const linkText = "text-[0.68rem] font-medium uppercase tracking-[0.14em] xl:text-[0.75rem] xl:tracking-[0.2em]";
+// Links step up with width so the three zones never collide:
+// 1024–1279: 0.68rem/0.14em · 1280–1535: 0.72rem/0.16em · 1536+: 0.75rem/0.2em.
+const linkText =
+  "text-[0.68rem] font-medium uppercase tracking-[0.14em] xl:text-[0.72rem] xl:tracking-[0.16em] 2xl:text-[0.75rem] 2xl:tracking-[0.2em]";
 const outlined =
   "inline-flex h-10 items-center border border-cream/60 px-4 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-cream transition-colors duration-300 hover:border-cream hover:bg-cream hover:text-bg";
 
@@ -106,26 +108,18 @@ export function SiteNav({ overlay = false }: { overlay?: boolean }) {
       )}
       <nav
         aria-label="Main"
-        // Three zones on the same container as the page sections: brand | links | account.
-        className={`relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 sm:px-10 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:px-16 ${
+        // Three zones: brand | links (truly centred) | account. Wider than the page container,
+        // and the 40px column gap guarantees clear space between the zones.
+        className={`relative mx-auto flex max-w-[96rem] items-center justify-between gap-6 px-6 sm:px-10 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-x-10 lg:px-16 ${
           overlay ? "h-(--nav-h) transition-opacity duration-1000 ease-out" : "py-5"
         }`}
         style={overlay ? { opacity: loaderDone ? 1 : 0 } : undefined}
       >
-        <div className="flex items-center lg:justify-self-start">
-          {overlay ? (
-            <PartnerLogos
-              className="gap-3! xl:gap-5!"
-              suasClassName="h-[calc(var(--nav-h)*0.78)]"
-              hultClassName="hidden h-[calc(var(--nav-h)*0.4)] sm:block"
-              ruleClassName="hidden h-[calc(var(--nav-h)*0.4)] sm:block"
-            />
-          ) : (
-            <Wordmark />
-          )}
+        <div className="flex min-w-0 max-w-full items-center lg:justify-self-start">
+          {overlay ? <NavLogos /> : <Wordmark />}
         </div>
 
-        <ul className="hidden items-center gap-5 lg:flex xl:gap-9">
+        <ul className="hidden items-center gap-4 lg:flex xl:gap-8 2xl:gap-11">
           {LINKS.map((l) => (
             <li key={l.href}>
               <Link
@@ -150,7 +144,7 @@ export function SiteNav({ overlay = false }: { overlay?: boolean }) {
         </ul>
 
         {/* Separated account action */}
-        <div className="hidden items-center lg:flex lg:justify-self-end">
+        <div className="hidden min-w-0 items-center lg:flex lg:justify-self-end">
           <AccountLinks />
         </div>
 
