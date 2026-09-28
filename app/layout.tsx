@@ -24,6 +24,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  // Production domain is TBA (open-questions D3); the site URL comes from env.
+  metadataBase: new URL(process.env.BETTER_AUTH_URL || "http://localhost:3000"),
   title: "Short Film Competition | Hult Prize @ SUAS",
   description:
     "Real stories. Brighter tomorrows. A short film competition around four UN Sustainable Development Goals, by Hult Prize @ SUAS.",
