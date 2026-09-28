@@ -119,10 +119,11 @@ model Team {
   whatsapp           String
   branch             String
   semester           String
-  sdg                Int
-  filmTitle          String
-  synopsis           String
-  sdgApproach        String
+  // Film idea is chosen at film submission (Phase 2), not at registration.
+  sdg                Int?
+  filmTitle          String?
+  synopsis           String?
+  sdgApproach        String?
   registrationStatus RegistrationStatus @default(SUBMITTED)
   locked             Boolean            @default(false)
   createdAt          DateTime           @default(now())

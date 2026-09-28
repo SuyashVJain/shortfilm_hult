@@ -9,7 +9,6 @@ export type Draft = {
   step: number;
   details: { teamName: string; leaderName: string; enrollmentNumber: string; whatsapp: string; branch: string; semester: string };
   members: MemberDraft[];
-  film: { sdg: number | null; filmTitle: string; synopsis: string; sdgApproach: string };
   payment: { utr: string; screenshotUrl: string };
 };
 
@@ -26,7 +25,6 @@ export const EMPTY_DRAFT: Draft = {
   step: 1,
   details: { teamName: "", leaderName: "", enrollmentNumber: "", whatsapp: "", branch: "", semester: "" },
   members: [],
-  film: { sdg: null, filmTitle: "", synopsis: "", sdgApproach: "" },
   payment: { utr: "", screenshotUrl: "" },
 };
 
@@ -34,7 +32,6 @@ export const STEPS = [
   { label: "Verify" },
   { label: "Team" },
   { label: "Members" },
-  { label: "Film" },
   { label: "Payment" },
   { label: "Review" },
 ];

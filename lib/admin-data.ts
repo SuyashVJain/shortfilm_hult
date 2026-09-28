@@ -11,7 +11,7 @@ export type TeamRow = {
   leaderName: string;
   leaderEmail: string;
   whatsapp: string;
-  sdg: number;
+  sdg: number | null; // chosen at film submission; null until then
   size: number;
   latestPayment: PaymentStatusValue | null;
   filmStatus: string | null;

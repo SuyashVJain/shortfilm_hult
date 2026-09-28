@@ -1,13 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { SdgTheme, Settings } from "@/lib/settings-defaults";
+import type { Settings } from "@/lib/settings-defaults";
 
 export type RegisterSettings = {
   registrationFee: number;
   minTeamSize: number;
   maxTeamSize: number;
-  sdgThemes: SdgTheme[];
   paymentInstructions: Settings["paymentInstructions"];
 };
 

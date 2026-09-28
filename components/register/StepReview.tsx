@@ -40,8 +40,7 @@ export function StepReview({
   settings: RegisterSettings;
   onEdit: (step: number) => void;
 }) {
-  const { details, members, film, payment } = draft;
-  const theme = settings.sdgThemes.find((t) => t.number === film.sdg);
+  const { details, members, payment } = draft;
   return (
     <div>
       <Section title="Team" step={1} onEdit={onEdit}>
@@ -67,15 +66,7 @@ export function StepReview({
           ))}
         </ol>
       </Section>
-      <Section title="Film" step={3} onEdit={onEdit}>
-        <dl>
-          <Row label="Selected SDG" value={theme ? `${theme.number} · ${theme.title}` : "—"} />
-          <Row label="Film" value={film.filmTitle} />
-          <Row label="Synopsis" value={<span className="whitespace-pre-line">{film.synopsis}</span>} />
-          <Row label="SDG approach" value={<span className="whitespace-pre-line">{film.sdgApproach}</span>} />
-        </dl>
-      </Section>
-      <Section title="Payment" step={4} onEdit={onEdit}>
+      <Section title="Payment" step={3} onEdit={onEdit}>
         <dl>
           <Row label="Registration" value={`₹${settings.registrationFee}`} />
           <Row label="UTR" value={payment.utr} />

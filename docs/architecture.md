@@ -57,10 +57,10 @@ Seven tables plus the auth tables Better Auth manages. Field names are indicativ
 | `name` | Unique, case-insensitive |
 | `leaderId` | → User (one team per leader) |
 | `leaderName`, `whatsapp`, `branch`, `semester` | Leader details (email is on User) |
-| `sdg` | 9, 11, 12 or 16 |
-| `filmTitle` | Working title |
-| `synopsis` | Short |
-| `sdgApproach` | "How does your film address the selected SDG?" |
+| `sdg` | 9, 11, 12 or 16. Optional: null until chosen at film submission (Phase 2) |
+| `filmTitle` | Working title. Optional, set at film submission |
+| `synopsis` | Short. Optional, set at film submission |
+| `sdgApproach` | "How does your film address the selected SDG?" Optional, set at film submission |
 | `registrationStatus` | SUBMITTED, APPROVED |
 | `locked` | boolean. Once true, team and member editing is disabled |
 | `createdAt`, `updatedAt` | |

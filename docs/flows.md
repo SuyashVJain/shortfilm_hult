@@ -16,6 +16,8 @@ Navigation: Home · The Competition · SDG Themes · Guidelines · Register, wit
 
 Not one giant form. A multi-step flow, one focused step per screen, with a stepper and a progress line. Mobile-first, since most users arrive from the QR code.
 
+Registration is kept fast: team details, members and payment only. **The SDG and film idea are not collected at registration**; teams choose them later at film submission (Phase 2, section 4).
+
 **Guards:** if `registrationOpen` is false or the deadline has passed, show a calm "Registration is closed" screen with no form. If the user already has a team, redirect to `/dashboard`.
 
 ### Step 0. Verify email
@@ -35,27 +37,18 @@ Validation: team name required and unique, WhatsApp number a valid format, all f
 - Members can be removed, except the leader.
 - Bounds come from settings (`minTeamSize`, `maxTeamSize`).
 
-### Step 3. Film idea
-- Select SDG: four large selectable options (9, 11, 12, 16) with accent colours and names.
-- Working Film Title.
-- Short Synopsis.
-- "How does your film address the selected SDG?"
-- Keep it concise, with modest character limits and a visible counter. Limits are a UX choice, not an event rule.
-
-### Step 4. Payment
+### Step 3. Payment
 - Shows "Registration fee: ₹500 per team" (from settings).
 - Shows **payment instructions from admin settings** (text and optional QR). If not configured: "Payment details will be shared." Nothing hardcoded.
 - Fields: Transaction ID / UTR, Payment screenshot (image upload with preview, size cap).
 - Helper text explains that payment is verified manually by organizers.
 
-### Step 5. Review
+### Step 4. Review
 Complete summary, editable per section (jump back to a step):
 
 ```
 TEAM              The Storytellers
 TEAM SIZE         5
-SELECTED SDG      11 — Sustainable Cities and Communities
-FILM              The Last Train
 REGISTRATION      ₹500
 ```
 plus members list, leader contact and payment details (UTR, screenshot thumbnail). Primary button: **CONFIRM REGISTRATION**.
@@ -69,8 +62,6 @@ Your registration has been successfully submitted.
 
 Team ID:        HP-SF-027
 Payment:        Needs review
-Selected SDG:   SDG 11
-Film:           The Last Train
 ```
 CTA: **GO TO DASHBOARD**. Also send a confirmation email with the Team ID. The participant is already logged in. The screen and email say the organisers will check the payment and the team can already use its dashboard.
 
@@ -126,7 +117,7 @@ Shows the latest payment status, UTR and screenshot. If rejected: shows reason p
   - Google Drive link (validated; helper text: set sharing to "Anyone with the link can view")
   - Film Title
   - Synopsis
-  - Selected SDG (prefilled from registration)
+  - Selected SDG (chosen here; not collected at registration)
   - Credits
 - No other required fields until final submission rules are defined.
 - After submit: shows status (Submitted → Under Review, etc.) with the submitted details. Whether teams may edit or replace the link after submitting is TBA (open question), so default to allowed until admin marks Under Review.

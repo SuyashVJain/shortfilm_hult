@@ -11,10 +11,10 @@ import { nextTeamCode } from "@/lib/team-code";
 import { fieldErrors, registrationSchema, teamNameKey, type RegistrationInput } from "@/lib/validation";
 
 /** Step index each payload section belongs to (matches RegisterFlow). */
-const STEP_OF = { details: 1, members: 2, film: 3, payment: 4 } as const;
+const STEP_OF = { details: 1, members: 2, payment: 3 } as const;
 
 export type RegisterResult =
-  | { ok: true; teamCode: string; sdg: number; filmTitle: string; emailSent: boolean }
+  | { ok: true; teamCode: string; emailSent: boolean }
   | { ok: false; step?: number; fieldErrors?: Record<string, string>; formError?: string };
 
 function stepFor(errors: Record<string, string>) {
@@ -36,13 +36,12 @@ export async function registerTeam(input: RegistrationInput): Promise<RegisterRe
   const parsed = registrationSchema({
     minTeamSize: settings.minTeamSize,
     maxTeamSize: settings.maxTeamSize,
-    sdgNumbers: settings.sdgThemes.map((t) => t.number),
   }).safeParse(input);
   if (!parsed.success) {
     const errors = fieldErrors(parsed.error);
     return { ok: false, step: stepFor(errors), fieldErrors: errors };
   }
-  const { details, members, film, payment } = parsed.data;
+  const { details, members, payment } = parsed.data;
 
   if (!isOwnScreenshotUrl(payment.screenshotUrl, user.id)) {
     return {
@@ -70,10 +69,6 @@ export async function registerTeam(input: RegistrationInput): Promise<RegisterRe
           whatsapp: details.whatsapp,
           branch: details.branch,
           semester: details.semester,
-          sdg: film.sdg,
-          filmTitle: film.filmTitle,
-          synopsis: film.synopsis,
-          sdgApproach: film.sdgApproach,
           registrationStatus: "SUBMITTED",
           locked: false,
           members: {
@@ -126,5 +121,5 @@ export async function registerTeam(input: RegistrationInput): Promise<RegisterRe
     console.warn("registerTeam: confirmation email not sent");
   }
 
-  return { ok: true, teamCode, sdg: film.sdg, filmTitle: film.filmTitle, emailSent };
+  return { ok: true, teamCode, emailSent };
 }
