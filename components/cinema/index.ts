@@ -5,3 +5,6 @@ export { LightLeak } from "./LightLeak";
 export { Letterbox } from "./Letterbox";
 export { FilmStrip } from "./FilmStrip";
 export { Reveal } from "./Reveal";
+export { Loader } from "./Loader";
+export { PageShell, useLoaderDone } from "./LoaderContext";
+export { loaderBootScript } from "./loader-boot";

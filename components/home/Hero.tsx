@@ -1,19 +1,25 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Letterbox, LightLeak } from "@/components/cinema";
-import { ButtonLink } from "@/components/ui";
+import { LightLeak, useLoaderDone } from "@/components/cinema";
+import { ButtonLink, PartnerLogos } from "@/components/ui";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
+// Entrance delays count from the moment the countdown loader exits.
+
 function Line({ children, delay, className = "" }: { children: React.ReactNode; delay: number; className?: string }) {
   const reduce = useReducedMotion();
+  const go = useLoaderDone();
+  const from = reduce ? { opacity: 0 } : { y: "140%" }; // clears the padded mask
   return (
-    <span className={`block overflow-hidden ${className}`}>
+    // Padded mask (cancelled by equal negative margin) so round tops, bottoms
+    // and descenders are never clipped by overflow-hidden.
+    <span className={`my-[-0.14em] block overflow-hidden py-[0.14em] ${className}`}>
       <motion.span
         className="block"
-        initial={reduce ? { opacity: 0 } : { y: "105%" }}
-        animate={reduce ? { opacity: 1 } : { y: "0%" }}
+        initial={from}
+        animate={go ? (reduce ? { opacity: 1 } : { y: "0%" }) : from}
         transition={{ duration: reduce ? 0.3 : 1.1, delay: reduce ? 0 : delay, ease }}
       >
         {children}
@@ -22,13 +28,26 @@ function Line({ children, delay, className = "" }: { children: React.ReactNode; 
   );
 }
 
-function Fade({ children, delay, className = "" }: { children: React.ReactNode; delay: number; className?: string }) {
+function Fade({
+  children,
+  delay,
+  className = "",
+  style,
+}: {
+  children: React.ReactNode;
+  delay: number;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   const reduce = useReducedMotion();
+  const go = useLoaderDone();
+  const from = { opacity: 0, y: reduce ? 0 : 10 };
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: reduce ? 0 : 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      style={style}
+      initial={from}
+      animate={go ? { opacity: 1, y: 0 } : from}
       transition={{ duration: reduce ? 0.3 : 1, delay: reduce ? 0 : delay, ease }}
     >
       {children}
@@ -39,13 +58,15 @@ function Fade({ children, delay, className = "" }: { children: React.ReactNode; 
 /** Brush-stroke underline under "Competition". */
 function Swoosh() {
   const reduce = useReducedMotion();
+  const go = useLoaderDone();
+  const from = { pathLength: reduce ? 1 : 0, opacity: reduce ? 0 : 1 };
   return (
     <svg viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden className="absolute -bottom-[0.18em] left-[4%] h-[0.28em] w-[96%] overflow-visible">
       <motion.path
         d="M4 30 C 140 12, 330 6, 596 10 C 420 14, 230 22, 60 36 Z"
         fill="var(--color-red)"
-        initial={{ pathLength: reduce ? 1 : 0, opacity: reduce ? 0 : 1 }}
-        animate={{ pathLength: 1, opacity: 1 }}
+        initial={from}
+        animate={go ? { pathLength: 1, opacity: 1 } : from}
         transition={{ duration: reduce ? 0.3 : 1.2, delay: reduce ? 0 : 2.6, ease }}
       />
     </svg>
@@ -54,50 +75,80 @@ function Swoosh() {
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-28 text-center sm:px-10">
-      <Letterbox />
-      <LightLeak className="top-[18%] left-1/2 h-[45vh] w-[90vw] max-w-5xl -translate-x-1/2" intensity={0.4} />
+    <section className="hero relative flex flex-col items-center justify-between overflow-hidden text-center">
+      {/* Gentle shade behind the tagline and buttons only */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-linear-to-t from-bg/70 via-bg/30 to-transparent"
+      />
+      <LightLeak className="top-[18%] left-1/2 h-[45dvh] w-[90vw] max-w-5xl -translate-x-1/2" intensity={0.4} />
 
-      <Fade delay={0.2}>
-        <p className="text-[0.62rem] font-medium uppercase tracking-[var(--tracking-label)] text-cream/85 sm:text-xs">
-          Real Stories <span className="mx-2 text-red">|</span> Brighter Tomorrows
-        </p>
+      {/* Top: partner logos */}
+      <Fade delay={0.1} className="shrink-0">
+        <PartnerLogos
+          className="gap-[min(2.5dvh,4vw)]!"
+          suasClassName="hero-logo-suas"
+          hultClassName="hero-logo-hult"
+          ruleClassName="hero-logo-rule"
+        />
       </Fade>
 
-      <h1 className="relative mt-8 sm:mt-10">
-        <span className="sr-only">Short Film Competition</span>
-        <span aria-hidden className="block font-display uppercase leading-[0.86] text-cream">
-          {/* Mobile: SHORT and FILM stack. Desktop: one line filling the width. */}
-          <span className="flex flex-col text-[clamp(5.5rem,30vw,9rem)] sm:flex-row sm:justify-center sm:gap-[0.22em] sm:text-[clamp(7rem,16vw,15rem)]">
-            <Line delay={0.5}>Short</Line>
-            <Line delay={0.95}>Film</Line>
-          </span>
-        </span>
-        <span aria-hidden className="relative -mt-[0.42em] block font-script text-[clamp(3.6rem,19vw,5.6rem)] leading-none text-red sm:-mt-[0.5em] sm:text-[clamp(4.5rem,10vw,9.5rem)]">
-          <Line delay={1.7} className="overflow-visible! pb-[0.25em]">
-            <span className="relative inline-block -rotate-[7deg] px-[0.1em] drop-shadow-[0_6px_24px_rgb(0_0_0/0.65)]">
-              Competition
-              <Swoosh />
+      {/* Middle: eyebrow and lockup */}
+      <div className="flex min-h-0 flex-col items-center" style={{ gap: "var(--gap)" }}>
+        <Fade delay={0.2}>
+          <p className="hero-label font-medium uppercase tracking-label text-cream/85">
+            Real Stories <span className="mx-2 text-red">|</span> Brighter Tomorrows
+          </p>
+        </Fade>
+
+        <h1 className="relative">
+          <span className="sr-only">Short Film Competition</span>
+          <span aria-hidden className="block font-display uppercase leading-[0.86] text-cream">
+            {/* Narrow: SHORT and FILM stack. Wide: one line. */}
+            <span className="hero-title flex flex-col sm:flex-row sm:justify-center sm:gap-[0.22em]">
+              <Line delay={0.5}>Short</Line>
+              <Line delay={0.95}>Film</Line>
             </span>
-          </Line>
-        </span>
-      </h1>
+          </span>
+          <span aria-hidden className="hero-script relative mt-[-0.42em] block font-script leading-none text-red sm:mt-[-0.5em]">
+            <Line delay={1.7} className="overflow-visible! pb-[0.25em]">
+              <span className="relative inline-block rotate-[-7deg] px-[0.1em] drop-shadow-[0_6px_24px_rgb(0_0_0/0.65)]">
+                Competition
+                <Swoosh />
+              </span>
+            </Line>
+          </span>
+        </h1>
+      </div>
 
-      <Fade delay={2.4} className="mt-8 max-w-md sm:mt-10 sm:max-w-none">
-        <p className="text-[0.62rem] font-medium uppercase leading-relaxed tracking-[var(--tracking-label)] text-cream-muted sm:text-xs">
-          Four goals. Countless perspectives.
-          <br className="sm:hidden" /> Your story can make a difference.
-        </p>
-      </Fade>
+      {/* Bottom: tagline and CTAs */}
+      <div className="flex shrink-0 flex-col items-center" style={{ gap: "var(--gap)" }}>
+        <Fade delay={2.4} className="hero-tagline relative max-w-md sm:max-w-none">
+          {/* Soft dark pool so the tagline reads over the sunset glow. */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -inset-x-16 -inset-y-8 -z-10 blur-xl"
+            style={{ background: "radial-gradient(ellipse at center, rgb(5 5 5 / 0.6) 0%, rgb(5 5 5 / 0.3) 45%, transparent 75%)" }}
+          />
+          <p className="hero-label font-medium uppercase leading-relaxed tracking-label text-cream/80 [text-shadow:0_1px_12px_rgb(0_0_0/0.6)]">
+            Four goals. Countless perspectives.
+            <br className="sm:hidden" /> Your story can make a difference.
+          </p>
+        </Fade>
 
-      <Fade delay={2.8} className="mt-10 flex w-full max-w-xs flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:gap-4">
-        <ButtonLink href="/register" variant="primary">
-          Register your team
-        </ButtonLink>
-        <ButtonLink href="/sdgs" variant="secondary">
-          Explore the SDGs
-        </ButtonLink>
-      </Fade>
+        <Fade
+          delay={2.8}
+          className="flex w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:flex-row"
+          style={{ gap: "min(1.6dvh, 16px)" }}
+        >
+          <ButtonLink href="/register" variant="primary" className="hero-btn">
+            Register your team
+          </ButtonLink>
+          <ButtonLink href="/sdgs" variant="secondary" className="hero-btn">
+            Explore the SDGs
+          </ButtonLink>
+        </Fade>
+      </div>
     </section>
   );
 }

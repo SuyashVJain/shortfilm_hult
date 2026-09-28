@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Anton, Inter, Yellowtail } from "next/font/google";
+import { Loader, PageShell, loaderBootScript } from "@/components/cinema";
 import "./globals.css";
 
 const anton = Anton({
@@ -34,11 +35,22 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // suppressHydrationWarning: the boot script may set data-loader before hydration.
     <html
       lang="en"
       className={`${anton.variable} ${yellowtail.variable} ${inter.variable} antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-dvh text-cream">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: loaderBootScript }} />
+        <noscript>
+          <style>{`#cinema-loader{display:none}body{overflow:auto!important}`}</style>
+        </noscript>
+      </head>
+      <body className="min-h-dvh text-cream">
+        <PageShell>{children}</PageShell>
+        <Loader />
+      </body>
     </html>
   );
 }
