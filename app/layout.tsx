@@ -38,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${anton.variable} ${yellowtail.variable} ${inter.variable} antialiased`}
     >
-      <body className="min-h-dvh bg-bg text-cream">{children}</body>
+      <body className="min-h-dvh text-cream">{children}</body>
     </html>
   );
 }

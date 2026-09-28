@@ -6,7 +6,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <BackgroundStage />
       <Vignette />
       <FilmGrain />
-      <main className="relative">{children}</main>
+      <main className="relative z-10">{children}</main>
     </>
   );
 }

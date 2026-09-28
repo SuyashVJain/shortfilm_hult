@@ -19,11 +19,11 @@ export function BackgroundStage({ variant = "cinematic" }: Props) {
   const overlay = useTransform(scrollY, [0, 700], [0.35, 0.85], { clamp: true });
 
   if (variant === "calm") {
-    return <div aria-hidden className="fixed inset-0 -z-10 bg-bg" />;
+    return <div aria-hidden className="fixed inset-0 z-0 bg-bg" />;
   }
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-bg">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-bg">
       <Image
         src="/cinema/bg-mobile.webp"
         alt=""
