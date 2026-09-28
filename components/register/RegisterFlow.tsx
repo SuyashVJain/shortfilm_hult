@@ -19,7 +19,16 @@ const DRAFT_KEY = "sf-register-draft";
 function loadDraft(): Draft {
   try {
     const raw = sessionStorage.getItem(DRAFT_KEY);
-    if (raw) return { ...EMPTY_DRAFT, ...(JSON.parse(raw) as Partial<Draft>) };
+    if (raw) {
+      const saved = JSON.parse(raw) as Partial<Draft>;
+      // Older drafts may lack newer fields (e.g. enrollment number): fill with blanks.
+      return {
+        ...EMPTY_DRAFT,
+        ...saved,
+        details: { ...EMPTY_DRAFT.details, ...saved.details },
+        members: (saved.members ?? []).map((m) => ({ ...m, enrollmentNumber: m.enrollmentNumber ?? "" })),
+      };
+    }
   } catch {}
   return EMPTY_DRAFT;
 }
@@ -65,7 +74,7 @@ export function RegisterFlow({ email, settings }: Props) {
   };
 
   function validate(s: number): Errors {
-    const members = draft.members.map(({ fullName, branch, semester }) => ({ fullName, branch, semester }));
+    const members = draft.members.map(({ fullName, enrollmentNumber, branch, semester }) => ({ fullName, enrollmentNumber, branch, semester }));
     const result =
       s === 1
         ? ["details", teamDetailsSchema.safeParse(draft.details)]
@@ -105,7 +114,7 @@ export function RegisterFlow({ email, settings }: Props) {
     try {
       const result = await registerTeam({
         details: draft.details,
-        members: draft.members.map(({ fullName, branch, semester }) => ({ fullName, branch, semester })),
+        members: draft.members.map(({ fullName, enrollmentNumber, branch, semester }) => ({ fullName, enrollmentNumber, branch, semester })),
         film: { ...draft.film, sdg: draft.film.sdg ?? Number.NaN },
         payment: draft.payment,
       });

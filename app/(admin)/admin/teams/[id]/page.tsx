@@ -95,7 +95,7 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
               {i + 1}. {m.fullName}
               <span className="text-cream/55">
                 {" "}
-                · {m.branch}, semester {m.semester}
+                · {m.enrollmentNumber} · {m.branch}, semester {m.semester}
                 {m.isLeader && " · Team Leader"}
               </span>
             </li>

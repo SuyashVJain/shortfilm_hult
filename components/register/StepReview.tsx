@@ -49,6 +49,7 @@ export function StepReview({
           <Row label="Team" value={details.teamName} />
           <Row label="Team size" value={members.length + 1} />
           <Row label="Leader" value={details.leaderName} />
+          <Row label="Enrollment" value={details.enrollmentNumber} />
           <Row label="Email" value={email} />
           <Row label="WhatsApp" value={details.whatsapp} />
           <Row label="Branch" value={`${details.branch}, semester ${details.semester}`} />
@@ -57,11 +58,11 @@ export function StepReview({
       <Section title="Members" step={2} onEdit={onEdit}>
         <ol className="space-y-1 text-sm text-cream">
           <li>
-            1. {details.leaderName} <span className="text-cream/50">(Team Leader)</span>
+            1. {details.leaderName} <span className="text-cream/50">(Team Leader) · {details.enrollmentNumber}</span>
           </li>
           {members.map((m, i) => (
             <li key={m.id}>
-              {i + 2}. {m.fullName} <span className="text-cream/50">· {m.branch}, semester {m.semester}</span>
+              {i + 2}. {m.fullName} <span className="text-cream/50">· {m.enrollmentNumber} · {m.branch}, semester {m.semester}</span>
             </li>
           ))}
         </ol>

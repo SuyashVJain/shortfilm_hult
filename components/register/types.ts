@@ -2,12 +2,12 @@ import type { RegisterSettings } from "@/app/(public)/register/RegisterClient";
 
 export type { RegisterSettings };
 
-export type MemberDraft = { id: string; fullName: string; branch: string; semester: string };
+export type MemberDraft = { id: string; fullName: string; enrollmentNumber: string; branch: string; semester: string };
 
 /** Everything the flow collects. Mirrored to sessionStorage; never holds the OTP. */
 export type Draft = {
   step: number;
-  details: { teamName: string; leaderName: string; whatsapp: string; branch: string; semester: string };
+  details: { teamName: string; leaderName: string; enrollmentNumber: string; whatsapp: string; branch: string; semester: string };
   members: MemberDraft[];
   film: { sdg: number | null; filmTitle: string; synopsis: string; sdgApproach: string };
   payment: { utr: string; screenshotUrl: string };
@@ -24,7 +24,7 @@ export type StepProps = {
 
 export const EMPTY_DRAFT: Draft = {
   step: 1,
-  details: { teamName: "", leaderName: "", whatsapp: "", branch: "", semester: "" },
+  details: { teamName: "", leaderName: "", enrollmentNumber: "", whatsapp: "", branch: "", semester: "" },
   members: [],
   film: { sdg: null, filmTitle: "", synopsis: "", sdgApproach: "" },
   payment: { utr: "", screenshotUrl: "" },

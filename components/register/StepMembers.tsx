@@ -1,8 +1,9 @@
-import { Field, FormNotice, Input } from "@/components/ui";
+import { Field, FormNotice, Input, Select } from "@/components/ui";
+import { BRANCHES, SEMESTERS } from "@/lib/validation/common";
 import type { MemberDraft, StepProps } from "./types";
 
 function newMember(): MemberDraft {
-  return { id: crypto.randomUUID(), fullName: "", branch: "", semester: "" };
+  return { id: crypto.randomUUID(), fullName: "", enrollmentNumber: "", branch: "", semester: "" };
 }
 
 export function StepMembers({ draft, setDraft, errors, settings }: StepProps) {
@@ -26,7 +27,7 @@ export function StepMembers({ draft, setDraft, errors, settings }: StepProps) {
         <p className="text-[0.65rem] uppercase tracking-[0.24em] text-red">Member 1 · Team Leader</p>
         <p className="mt-2 text-cream">{draft.details.leaderName || "Team leader"}</p>
         <p className="text-sm text-cream/60">
-          {[draft.details.branch, draft.details.semester && `Semester ${draft.details.semester}`].filter(Boolean).join(" · ")}
+          {[draft.details.enrollmentNumber, draft.details.branch, draft.details.semester && `Semester ${draft.details.semester}`].filter(Boolean).join(" · ")}
         </p>
       </div>
 
@@ -37,12 +38,47 @@ export function StepMembers({ draft, setDraft, errors, settings }: StepProps) {
             <Field label="Full name" error={errors[`members.${i}.fullName`]}>
               {(p) => <Input {...p} value={m.fullName} onChange={(e) => update(m.id, "fullName", e.target.value)} maxLength={80} />}
             </Field>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <Field label="Enrollment number" error={errors[`members.${i}.enrollmentNumber`]}>
+              {(p) => (
+                <Input
+                  {...p}
+                  value={m.enrollmentNumber}
+                  onChange={(e) => update(m.id, "enrollmentNumber", e.target.value)}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  maxLength={40}
+                />
+              )}
+            </Field>
+            <div className="grid gap-5 sm:grid-cols-[2fr_1fr]">
               <Field label="Branch" error={errors[`members.${i}.branch`]}>
-                {(p) => <Input {...p} value={m.branch} onChange={(e) => update(m.id, "branch", e.target.value)} maxLength={80} />}
+                {(p) => (
+                  <Select {...p} value={m.branch} onChange={(e) => update(m.id, "branch", e.target.value)}>
+                    <option value="" disabled>
+                      Choose branch
+                    </option>
+                    {BRANCHES.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </Select>
+                )}
               </Field>
               <Field label="Semester" error={errors[`members.${i}.semester`]}>
-                {(p) => <Input {...p} value={m.semester} onChange={(e) => update(m.id, "semester", e.target.value)} maxLength={20} />}
+                {(p) => (
+                  <Select {...p} value={m.semester} onChange={(e) => update(m.id, "semester", e.target.value)}>
+                    <option value="" disabled>
+                      Choose
+                    </option>
+                    {SEMESTERS.map((sem) => (
+                      <option key={sem} value={sem}>
+                        {sem}
+                      </option>
+                    ))}
+                  </Select>
+                )}
               </Field>
             </div>
             <button

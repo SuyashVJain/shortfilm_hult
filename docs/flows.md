@@ -22,12 +22,14 @@ Not one giant form. A multi-step flow, one focused step per screen, with a stepp
 The team leader enters their email and receives a one-time code, then enters it. This creates the account (role PARTICIPANT) and lets payment proof upload happen securely. Draft form data is kept in the browser so a refresh does not lose progress.
 
 ### Step 1. Team details
-Team Name · Team Leader Name · Team Leader Email (prefilled, from verification) · WhatsApp Number · Branch · Semester.
+Team Name · Team Leader Name · Team Leader Enrollment Number · Team Leader Email (prefilled, from verification) · WhatsApp Number · Branch · Semester.
+
+Branch is a dropdown: B.Tech CSIT, B.Tech AI/ML, B.Tech SAR, BBA RM, BBA DMM, BBA LSCM, BBA BFSI, B.Sc Data Science, MBA BFSI, MBA LSCM, MBA MM. Semester is a dropdown: 1, 3, 5, 7. Enrollment number is required, with no fixed format (owner decision).
 Validation: team name required and unique, WhatsApp number a valid format, all fields required.
 
 ### Step 2. Team members
 - The leader is automatically member 1 (shown as locked, "Team Leader").
-- Add members dynamically. Each has Full Name, Branch, Semester.
+- Add members dynamically. Each has Full Name, Enrollment Number, Branch and Semester (same dropdowns as step 1).
 - Live counter: "Team size: 3 of 2–7".
 - Cannot proceed with fewer than 2 total. Cannot add beyond 7 (the add button disables and explains).
 - Members can be removed, except the leader.

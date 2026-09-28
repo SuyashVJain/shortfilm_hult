@@ -31,7 +31,7 @@ export async function GET() {
     [
       t.code, t.name, t.leaderName, t.leader.email, t.whatsapp, t.branch, t.semester,
       t.sdg, t.filmTitle, t.members.length,
-      t.members.map((m) => `${m.fullName} (${m.branch}, sem ${m.semester})${m.isLeader ? " [leader]" : ""}`).join("; "),
+      t.members.map((m) => `${m.fullName} (${m.enrollmentNumber}, ${m.branch}, sem ${m.semester})${m.isLeader ? " [leader]" : ""}`).join("; "),
       t.payments[0] ? PAYMENT_LABEL[t.payments[0].status] : "None",
       t.locked ? "Yes" : "No",
       t.createdAt.toISOString(),

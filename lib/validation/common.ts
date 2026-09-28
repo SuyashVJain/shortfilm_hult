@@ -24,5 +24,24 @@ export const whatsappSchema = z
       .transform((v) => `+91${v.slice(-10)}`),
   );
 
-export const semesterSchema = requiredText("the semester", 20);
-export const branchSchema = requiredText("the branch", 80);
+// Branch and semester options (owner decision). Order is the display order.
+export const BRANCHES = [
+  "B.Tech CSIT",
+  "B.Tech AI/ML",
+  "B.Tech SAR",
+  "BBA RM",
+  "BBA DMM",
+  "BBA LSCM",
+  "BBA BFSI",
+  "B.Sc Data Science",
+  "MBA BFSI",
+  "MBA LSCM",
+  "MBA MM",
+] as const;
+export const SEMESTERS = ["1", "3", "5", "7"] as const;
+
+export const branchSchema = z.enum(BRANCHES, { error: "Please choose a branch from the list." });
+export const semesterSchema = z.enum(SEMESTERS, { error: "Please choose a semester (1, 3, 5 or 7)." });
+
+/** No fixed format is defined, so only required and length-capped. */
+export const enrollmentSchema = requiredText("the enrollment number", 40);
