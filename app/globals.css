@@ -71,8 +71,8 @@ body {
   --gap: 2.2dvh;
   height: 100vh;
   height: 100dvh;
-  /* Top band reserved for the overlay nav; logos sit just below it. */
-  padding-top: calc(var(--nav-h) + 1.5dvh);
+  /* Top band reserved for the overlay nav (which carries the partner logos). */
+  padding-top: calc(var(--nav-h) + 1dvh);
   padding-bottom: 4dvh;
   padding-inline: 1.5rem;
 }
@@ -89,9 +89,6 @@ body {
   .hero-script { font-size: calc(var(--t) * 0.66); }
 }
 .hero-label { font-size: clamp(9px, min(1.6dvh, 2.8vw), 13px); }
-.hero-logo-suas { height: clamp(28px, min(7dvh, 12vw), 76px); }
-.hero-logo-hult { height: clamp(16px, min(4dvh, 7vw), 42px); }
-.hero-logo-rule { height: clamp(16px, 4dvh, 40px); }
 .hero-btn {
   min-height: clamp(38px, 6.5dvh, 52px);
   padding-block: 0;
