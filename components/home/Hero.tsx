@@ -100,8 +100,8 @@ export function Hero() {
         <Fade delay={0.2}>
           {/* Phones: two even lines, divider hidden. sm+: one line with the red divider. */}
           <p className="hero-label font-medium uppercase leading-relaxed tracking-[0.22em] text-balance text-cream/85 sm:tracking-label">
-            <span className="block sm:inline">Real Stories</span>
-            <span className="mx-2 hidden text-red sm:inline">|</span>
+            <span className="block sm:inline">Real Stories</span>{" "}
+            <span className="mx-2 hidden text-red sm:inline">|</span>{" "}
             <span className="block sm:inline">Brighter Tomorrows</span>
           </p>
         </Fade>

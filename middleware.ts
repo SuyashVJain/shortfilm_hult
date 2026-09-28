@@ -15,10 +15,18 @@ export async function middleware(req: NextRequest) {
   const rule = RULES.find((r) => req.nextUrl.pathname.startsWith(r.prefix));
   if (!rule) return NextResponse.next();
 
-  const res = await fetch(new URL("/api/auth/get-session", req.nextUrl.origin), {
-    headers: { cookie: req.headers.get("cookie") ?? "" },
-  });
-  const session = res.ok ? ((await res.json()) as { user?: { role?: Role } } | null) : null;
+  let session: { user?: { role?: Role } } | null;
+  try {
+    const res = await fetch(new URL("/api/auth/get-session", req.nextUrl.origin), {
+      headers: { cookie: req.headers.get("cookie") ?? "" },
+    });
+    // Fail open on an error (e.g. 429/5xx): requireRole() in the page still
+    // enforces access. Redirecting here would loop with /login.
+    if (!res.ok) return NextResponse.next();
+    session = (await res.json()) as { user?: { role?: Role } } | null;
+  } catch {
+    return NextResponse.next();
+  }
 
   if (!session?.user) {
     const login = new URL("/login", req.url);
