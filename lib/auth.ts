@@ -6,8 +6,7 @@ import { emailOTP } from "better-auth/plugins";
 import { db } from "@/lib/db";
 import { sendMail } from "@/lib/mailer";
 
-export const ROLES = ["PARTICIPANT", "JURY", "ADMIN"] as const;
-export type Role = (typeof ROLES)[number];
+export { ROLES, type Role } from "@/lib/roles";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, { provider: "postgresql" }),
