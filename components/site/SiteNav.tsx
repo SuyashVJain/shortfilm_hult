@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useLoaderDone } from "@/components/cinema";
 import { authClient } from "@/lib/auth-client";
 import { homeForRole, toRole } from "@/lib/roles";
 import { SignOutButton } from "./SignOutButton";
@@ -43,9 +44,13 @@ function AccountLinks({ className = "", onNavigate }: { className?: string; onNa
   );
 }
 
-/** Minimal site nav (design-system §10). Not used on "/". */
-export function SiteNav() {
+/**
+ * Minimal site nav (design-system §10).
+ * `overlay` (home only): transparent over the hero, no wordmark, fades in after the loader.
+ */
+export function SiteNav({ overlay = false }: { overlay?: boolean }) {
   const pathname = usePathname();
+  const loaderDone = useLoaderDone();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -88,9 +93,19 @@ export function SiteNav() {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <header className="relative z-40">
-      <nav aria-label="Main" className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5 sm:px-10 lg:px-16">
-        <Wordmark />
+    <header className={overlay ? "absolute inset-x-0 top-0 z-40" : "relative z-40"}>
+      {overlay && (
+        // Soft top-only shade so links stay readable over the backdrop.
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[calc(var(--nav-h)*1.6)] bg-linear-to-b from-bg/75 via-bg/35 to-transparent" />
+      )}
+      <nav
+        aria-label="Main"
+        className={`relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 sm:px-10 lg:px-16 ${
+          overlay ? "h-(--nav-h) transition-opacity duration-1000 ease-out" : "py-5"
+        }`}
+        style={overlay ? { opacity: loaderDone ? 1 : 0 } : undefined}
+      >
+        {overlay ? <span aria-hidden className="hidden lg:block" /> : <Wordmark />}
 
         <ul className="hidden items-center gap-7 lg:flex">
           {LINKS.map((l) => (
@@ -99,7 +114,15 @@ export function SiteNav() {
                 href={l.href}
                 aria-current={isActive(l.href) ? "page" : undefined}
                 className={`${small} transition-colors hover:text-cream ${
-                  l.href === "/register" ? "text-red hover:text-red" : isActive(l.href) ? "text-cream" : "text-cream/65"
+                  l.href === "/register"
+                    ? overlay
+                      ? "text-[#ff4d5c] hover:text-[#ff6b77]" // lighter red: AA contrast over the backdrop
+                      : "text-red hover:text-red"
+                    : isActive(l.href)
+                      ? "text-cream"
+                      : overlay
+                        ? "text-cream/85"
+                        : "text-cream/65"
                 }`}
               >
                 {l.label}
@@ -119,7 +142,7 @@ export function SiteNav() {
           aria-expanded={open}
           aria-controls="site-menu"
           onClick={() => setOpen(true)}
-          className={`${small} -mr-3 min-h-11 px-3 text-cream lg:hidden`}
+          className={`${small} -mr-3 ml-auto min-h-11 px-3 text-cream lg:hidden`}
         >
           Menu
         </button>
@@ -165,18 +188,3 @@ export function SiteNav() {
   );
 }
 
-/** Home page only: a small Login / Dashboard link in the top-right corner. */
-export function HomeAccountLink() {
-  const { data: session, isPending } = authClient.useSession();
-  if (isPending) return null;
-  const href = session ? homeForRole(toRole(session.user.role)) : "/login";
-  return (
-    <Link
-      href={href}
-      // Sits above the hero's 4dvh top padding; the 44px tap area is padding, the text stays small.
-      className={`${small} absolute top-0 right-0 z-40 flex min-h-11 items-start px-4 pt-[max(10px,1.2dvh)] text-[0.62rem] text-cream/70 transition-colors hover:text-cream sm:px-8 sm:text-[0.7rem]`}
-    >
-      {session ? "Dashboard" : "Login"}
-    </Link>
-  );
-}

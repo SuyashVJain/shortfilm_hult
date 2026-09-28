@@ -34,6 +34,11 @@
   }
 }
 
+:root {
+  /* Site nav height; the home hero reserves this band at its top. */
+  --nav-h: clamp(52px, 7dvh, 68px);
+}
+
 html {
   background: var(--color-bg);
   color-scheme: dark;
@@ -66,7 +71,9 @@ body {
   --gap: 2.2dvh;
   height: 100vh;
   height: 100dvh;
-  padding-block: 4dvh;
+  /* Top band reserved for the overlay nav; logos sit just below it. */
+  padding-top: calc(var(--nav-h) + 1.5dvh);
+  padding-bottom: 4dvh;
   padding-inline: 1.5rem;
 }
 @media (min-width: 640px) {
