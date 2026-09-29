@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LockToggle } from "@/components/admin/LockToggle";
 import { FilmReview } from "@/components/admin/FilmReview";
+import { TeamLocationSelect, UnlockEvaluationButton } from "@/components/admin/JuryAdmin";
+import { round2, summarise, type ScoreMap } from "@/lib/scoring";
 import { PaymentReview } from "@/components/admin/PaymentReview";
 import { ScreenshotDialog } from "@/components/admin/ScreenshotDialog";
 import { StatusBadge } from "@/components/ui";
@@ -43,14 +45,35 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
         leader: { select: { email: true } },
         members: { orderBy: [{ isLeader: "desc" }, { fullName: "asc" }] },
         payments: { orderBy: { submittedAt: "desc" } },
-        submission: true,
+        submission: {
+          include: {
+            evaluations: {
+              orderBy: { createdAt: "asc" },
+              select: {
+                id: true,
+                scores: true,
+                comment: true,
+                locked: true,
+                lockedAt: true,
+                adminUnlockedAt: true,
+                juryAccount: { select: { displayName: true, username: true, location: { select: { name: true } } } },
+              },
+            },
+          },
+        },
+        location: { select: { id: true, name: true } },
       },
     }),
     getSettings(),
   ]);
+  const locations = await db.location.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } });
   if (!team) notFound();
 
   const film = team.submission && team.submission.status !== "NOT_SUBMITTED" ? team.submission : null;
+  const criteria = settings.evaluationCriteria.map((c) => ({ key: c.key, title: c.title }));
+  const evaluations = (film?.evaluations ?? []).filter((e) => e.locked && !e.adminUnlockedAt);
+  const allEvaluations = film?.evaluations ?? [];
+  const summary = summarise(criteria, evaluations.map((e) => ({ scores: e.scores as ScoreMap })));
   const theme = film ? settings.sdgThemes.find((t) => t.number === film.sdg) : undefined;
   const latest = team.payments[0];
 
@@ -144,6 +167,85 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
           </div>
         ) : (
           <p className="text-sm text-cream/60">Not submitted yet. Teams choose their SDG and film at film submission.</p>
+        )}
+      </Section>
+
+      <Section title="Judging location">
+        <TeamLocationSelect teamId={team.id} locationId={team.location?.id ?? ""} locations={locations} />
+      </Section>
+
+      <Section title={`Evaluations (${evaluations.length} submitted)`}>
+        {allEvaluations.length === 0 ? (
+          <p className="text-sm text-cream/60">No evaluations yet.</p>
+        ) : (
+          <div className="space-y-6">
+            <div className="overflow-x-auto border border-divider">
+              <table className="w-full min-w-[40rem] border-collapse text-left text-sm">
+                <thead className="bg-charcoal-2">
+                  <tr>
+                    <th scope="col" className="px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-cream-muted">Criterion</th>
+                    {allEvaluations.map((e) => (
+                      <th key={e.id} scope="col" className="px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-cream-muted">
+                        {e.juryAccount.displayName}
+                        {e.adminUnlockedAt && <span className="block normal-case tracking-normal text-[#ff6b77]">unlocked, excluded</span>}
+                      </th>
+                    ))}
+                    <th scope="col" className="px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-cream">Sum</th>
+                    <th scope="col" className="px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-cream">Average</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {criteria.map((c, i) => (
+                    <tr key={c.key} className="border-t border-divider bg-charcoal">
+                      <th scope="row" className="px-3 py-2 font-normal text-cream/85">{c.title}</th>
+                      {allEvaluations.map((e) => (
+                        <td key={e.id} className={`px-3 py-2 font-mono ${e.adminUnlockedAt ? "text-cream/35" : "text-cream"}`}>
+                          {(e.scores as ScoreMap)[c.key] ?? "—"}
+                        </td>
+                      ))}
+                      <td className="px-3 py-2 font-mono text-cream">{summary.perCriterion[i].sum}</td>
+                      <td className="px-3 py-2 font-mono text-cream">{round2(summary.perCriterion[i].average)}</td>
+                    </tr>
+                  ))}
+                  <tr className="border-t border-cream/30 bg-charcoal-2">
+                    <th scope="row" className="px-3 py-2 text-[0.65rem] uppercase tracking-[0.16em] text-cream-muted">Total</th>
+                    {allEvaluations.map((e) => (
+                      <td key={e.id} className={`px-3 py-2 font-mono ${e.adminUnlockedAt ? "text-cream/35" : "text-cream"}`}>
+                        {criteria.reduce((a, c) => a + Number((e.scores as ScoreMap)[c.key] ?? 0), 0)}
+                      </td>
+                    ))}
+                    <td className="px-3 py-2 font-mono text-cream">{summary.totals.reduce((a, b) => a + b, 0)}</td>
+                    <td className="px-3 py-2 font-mono text-cream">{round2(summary.overallAverageTotal)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-cream/50">
+              Sums and averages use the {summary.jurors} submitted {summary.jurors === 1 ? "evaluation" : "evaluations"}. The overall average is the
+              mean of each juror&rsquo;s total. Unlocked evaluations are excluded until resubmitted.
+            </p>
+            <ul className="space-y-3">
+              {allEvaluations.map((e) => (
+                <li key={e.id} className="border border-divider bg-charcoal p-4 text-sm">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="text-cream">{e.juryAccount.displayName}</span>
+                    <span className="font-mono text-xs text-cream/50">{e.juryAccount.username} · {e.juryAccount.location.name}</span>
+                    {e.adminUnlockedAt ? (
+                      <StatusBadge tone="bad">Unlocked for correction</StatusBadge>
+                    ) : (
+                      <StatusBadge tone="ok">Submitted{e.lockedAt ? ` · ${date.format(e.lockedAt)}` : ""}</StatusBadge>
+                    )}
+                    {e.locked && !e.adminUnlockedAt && (
+                      <span className="ml-auto">
+                        <UnlockEvaluationButton id={e.id} />
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 whitespace-pre-line text-cream/75">{e.comment || <span className="text-cream/40">No comment</span>}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </Section>
 

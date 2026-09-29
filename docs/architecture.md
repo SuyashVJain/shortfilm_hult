@@ -33,7 +33,7 @@ A 3-minute video can exceed free-tier upload limits and adds heavy storage, band
 | Role | Can | Cannot |
 |---|---|---|
 | PARTICIPANT (team leader) | View and edit own team (while editable), upload payment proof, view status, submit film link when open | See other teams, admin or jury pages |
-| JURY | View approved submissions, save own evaluations | See payment data, admin settings, other jurors' scores (proposed) |
+| JURY | Separate `JuryAccount` (username + password set by admin, own session; not Better Auth). Sees approved films from teams assigned to their location; submits final scores | See payment data, team members, admin settings, other jurors' scores, or teams outside their location |
 | ADMIN | Everything: teams, payments, submissions, jury accounts, settings, results | n/a |
 
 Rules:
@@ -75,7 +75,10 @@ Seven tables plus the auth tables Better Auth manages. Field names are indicativ
 `id`, `teamId` (unique), `driveUrl`, `title`, `synopsis`, `sdg`, `credits` (free text, optional), `status` (NOT_SUBMITTED | SUBMITTED | UNDER_REVIEW | APPROVED | REJECTED), `submittedAt`, `adminNote`. Fields beyond these are not added until final submission rules exist.
 
 ### Evaluation
-`id`, `submissionId`, `juryId` (→ User), `scores` (JSON keyed by criterion key), `comment`, `createdAt`, `updatedAt`. Unique on (`submissionId`, `juryId`). Score bounds validated against the settings scale.
+`id`, `submissionId`, `juryAccountId` (→ JuryAccount), `scores` (JSON keyed by criterion key), `comment`, `locked` (final on submit), `lockedAt`, `adminUnlockedAt` (admin can unlock ONE evaluation for correction; resubmitting re-locks it), `createdAt`, `updatedAt`. Unique on (`submissionId`, `juryAccountId`). Scores are whole numbers on the settings scale (1–10 unless `scoringScale` is set).
+
+### Location, JuryAccount, JurySession
+`Location` (`name`, unique) is a judging room or online panel. `Team.locationId` assigns a team to one. `JuryAccount` (`username` unique, `passwordHash` scrypt, `displayName`, `locationId`, `active`) signs in at `/jury/login`; `JurySession` stores a hashed session token. Jury auth lives in `lib/jury-auth.ts` (`requireJury()`), fully separate from Better Auth.
 
 ### Award / Result
 `id`, `categoryKey` (from settings), `submissionId`, `note`, `published` (boolean), `publishedAt`. Categories live in settings. This table only records chosen winners, so categories can change freely.
@@ -102,7 +105,7 @@ Key/value rows or one JSON row, `updatedAt`, `updatedById`.
 **Protection of official fields:** official keys sit behind an "Unlock official fields" control with a confirmation dialog, and every change records who changed it and when. Operational toggles (registration/submission open) are always directly editable.
 
 ### Relationships
-User 1—1 Team · Team 1—N TeamMember · Team 1—N Payment · Team 1—1 FilmSubmission · FilmSubmission 1—N Evaluation · Evaluation N—1 User (jury) · Award N—1 FilmSubmission.
+User 1—1 Team · Team 1—N TeamMember · Team 1—N Payment · Team 1—1 FilmSubmission · FilmSubmission 1—N Evaluation · Evaluation N—1 JuryAccount · JuryAccount N—1 Location · Team N—1 Location · Award N—1 FilmSubmission.
 
 ### Implementation names (prisma/schema.prisma)
 Where the Prisma schema differs from the names above:
@@ -137,8 +140,9 @@ Participant   (role PARTICIPANT)
 /dashboard/submission  Film submission (when open)
 
 Jury          (role JURY, ADMIN)
-/jury                  Assigned/available films
-/jury/[submissionId]   Watch (Drive link) + evaluation form
+/jury/login            Jury sign-in (username + password)
+/jury                  Queue: approved films of teams in the juror's location
+/jury/[teamId]         Watch (Drive link) + scoring form (review, then final submit)
 
 Admin         (role ADMIN)
 /admin                 Overview stats
@@ -148,7 +152,7 @@ Admin         (role ADMIN)
 /admin/submissions     Submission management
 /admin/evaluations     Scores overview
 /admin/results         Winners, publish
-/admin/jury            Jury accounts
+/admin/jury            Locations, jury accounts, team-to-location assignment
 /admin/settings        Event settings
 ```
 
