@@ -54,8 +54,8 @@ Status key: OPEN (undecided), PROPOSED (default suggested, needs confirmation), 
 | D2 | Textless poster artwork | DONE | Three backdrops generated (see design-system.md). |
 | D3 | Production domain name | OPEN | Needed for QR and OTP email links. |
 | D4 | Sender email for OTP mail | DONE | Gmail SMTP (nodemailer, `lib/mailer.ts`) with a Google app password. The sender shows the Gmail address. Cap about 500 emails/day. |
-| D5 | Support contact shown on site (email / WhatsApp) | OPEN | Placeholder "Contact details will be shared". |
-| D6 | Organizer contact names to show publicly | OPEN | Not shown by default. |
+| D5 | Support contact shown on site (email / WhatsApp) | DONE | WhatsApp numbers for the Campus Director and Deputy Campus Director, plus Instagram @hultprize.suas, in `lib/contacts.ts`. Shown on /guidelines and in the footer. |
+| D6 | Organizer contact names to show publicly | DONE | Dhruvi Namdeo (Campus Director) and Suyash Vasal Jain (Deputy Campus Director), per the owner. |
 
 ## E. Technical decisions pending
 

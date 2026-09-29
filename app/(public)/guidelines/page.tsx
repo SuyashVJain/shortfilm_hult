@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Reveal } from "@/components/cinema";
+import { ContactList } from "@/components/site/ContactList";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { ButtonLink, Container, SectionHeading } from "@/components/ui";
 import { deadlineLong, rupees, teamSizeRange } from "@/lib/event-display";
@@ -88,6 +89,18 @@ export default async function GuidelinesPage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="mt-20" aria-labelledby="contact">
+          <Reveal>
+            <h2 id="contact" className="font-display text-3xl uppercase text-cream sm:text-4xl">
+              Contact us
+            </h2>
+            <p className="mt-3 max-w-[55ch] text-cream/70">Questions about the competition? Message the organisers on WhatsApp.</p>
+          </Reveal>
+          <div className="mt-8 max-w-4xl">
+            <ContactList />
+          </div>
         </section>
 
         <Reveal className="mt-20 border-t border-divider pt-14">
