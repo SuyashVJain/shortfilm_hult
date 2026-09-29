@@ -40,3 +40,8 @@ export function teamMembersSchema({ minTeamSize, maxTeamSize }: { minTeamSize: n
       message: `A team can have at most ${maxTeamSize} members, including the leader.`,
     });
 }
+
+/** Dashboard "Edit team": the same details and members rules as registration. */
+export function teamEditSchema(rules: { minTeamSize: number; maxTeamSize: number }) {
+  return z.object({ details: teamDetailsSchema, members: teamMembersSchema(rules) });
+}
