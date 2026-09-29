@@ -8,7 +8,11 @@ const STATE_TEXT = { done: "Done", current: "Current", upcoming: "Upcoming" } as
  */
 export function Timeline({ steps }: { steps: TimelineStep[] }) {
   return (
-    <ol className="grid gap-4 sm:grid-cols-5 sm:gap-2">
+    // One column per step, so the row always fits however many steps there are.
+    <ol
+      className="grid gap-4 sm:grid-cols-[repeat(var(--steps),minmax(0,1fr))] sm:gap-2"
+      style={{ ["--steps" as string]: steps.length }}
+    >
       {steps.map((s, i) => (
         <li key={s.label} className="relative flex items-start gap-3 sm:flex-col sm:gap-2">
           {i < steps.length - 1 && (
