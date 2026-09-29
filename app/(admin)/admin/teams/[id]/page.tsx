@@ -10,6 +10,7 @@ import { requireRole } from "@/lib/guards";
 import { PAYMENT_LABEL, PAYMENT_TONE, SUBMISSION_LABEL } from "@/lib/payment-status";
 import { getSettings } from "@/lib/settings";
 
+const FILM_TONE = { NOT_SUBMITTED: "neutral", SUBMITTED: "pending", UNDER_REVIEW: "pending", APPROVED: "ok", REJECTED: "bad" } as const;
 const date = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -109,6 +110,7 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
         {/* FilmSubmission is the source of truth for film content. */}
         {film ? (
           <div className="space-y-4">
+            <StatusBadge tone={FILM_TONE[film.status]}>{SUBMISSION_LABEL[film.status]}</StatusBadge>
             <dl>
               <Row label="SDG">{theme ? `${theme.number} · ${theme.title}` : film.sdg}</Row>
               <Row label="Title">{film.title}</Row>
@@ -126,9 +128,19 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
                 </Row>
               )}
               {film.submittedAt && <Row label="Submitted">{date.format(film.submittedAt)}</Row>}
-              {film.adminNote && <Row label="Admin note">{film.adminNote}</Row>}
+              {film.adminNote &&
+                (film.status === "REJECTED" ? (
+                  <Row label="Rejection reason">{film.adminNote}</Row>
+                ) : (
+                  // Kept as history (like an old rejected payment row); it refers to the earlier version.
+                  <Row label="Previous note">
+                    <span className="text-cream/60">{film.adminNote}</span>{" "}
+                    <span className="text-xs text-cream/45">(from an earlier rejection, before the team resubmitted)</span>
+                  </Row>
+                ))}
             </dl>
-            <FilmReview submissionId={film.id} status={film.status} />
+            {/* Keyed so a stale "rejected" message never survives a resubmission. */}
+            <FilmReview key={`${film.status}-${film.submittedAt?.toISOString() ?? ""}`} submissionId={film.id} status={film.status} />
           </div>
         ) : (
           <p className="text-sm text-cream/60">Not submitted yet. Teams choose their SDG and film at film submission.</p>
