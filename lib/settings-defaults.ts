@@ -22,7 +22,7 @@ export const settingsSchema = z.object({
   registrationFee: z.number().int().nonnegative(),
   minTeamSize: z.number().int().positive(),
   maxTeamSize: z.number().int().positive(),
-  maxFilmDurationMinutes: z.number().positive(),
+  maxFilmDurationMinutes: z.number().nonnegative(),
   registrationOpen: z.boolean(),
   submissionOpen: z.boolean(),
   prizeText: z.string(),
