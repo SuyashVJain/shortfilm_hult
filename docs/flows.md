@@ -148,7 +148,7 @@ Per film: each juror's scores and comments, aggregate per criterion and overall.
 For each configured award category, the admin selects a winning film, adds an optional note, previews, then **publishes**. Nothing is public until published. Categories come from settings and are marked proposed.
 
 ### Jury accounts (`/admin/jury`)
-Create/disable jury users by email. Proposed panel names are prefilled as suggestions, not forced.
+Create locations (rooms / online panels), create jury accounts with a jury ID and password tied to a location, deactivate/reactivate accounts, and assign each team to a location. Judging runs in parallel: each panel works through its own queue. On a team page the admin sees every juror's scores, per-criterion sum and average, and the overall average, and can unlock one evaluation for correction.
 
 ### Settings (`/admin/settings`)
 Sections: Event · Registration (fee, deadline, team size, open/closed) · Submission (open/closed, max duration) · Payment instructions · Prize text · Award categories · SDG themes · Evaluation criteria and scoring scale. Official fields are protected by an "Unlock official fields" step and confirmation, with last-changed info. Operational toggles are directly editable.
@@ -157,12 +157,12 @@ Sections: Event · Registration (fee, deadline, team size, open/closed) · Submi
 
 ## 6. Jury (`/jury`)
 
-Separate, minimal interface. Jury never sees payment data or admin controls.
+Separate, minimal interface with its own sign-in (`/jury/login`, jury ID + password from the admin; not email OTP). Jury never sees payment data, team members or admin controls.
 
 ### List
-Films available to the juror (approved submissions; optional per-juror assignment later). Each row: Team Name, Film Title, SDG, evaluation status (Not started / Saved).
+Approved films from teams assigned to the juror's location. Each row: Team ID, Team Name, Film Title, SDG, status (Not yet scored / Submitted / Unlocked for correction).
 
-### Evaluation page (`/jury/[submissionId]`)
+### Evaluation page (`/jury/[teamId]`)
 Top: Team Name · Film Title · Selected SDG · **Film** (Drive link opens in a new tab or is embedded when the link supports it).
 
 Scoring form, one control per proposed criterion:
@@ -174,10 +174,11 @@ Scoring form, one control per proposed criterion:
 5. Editing & Technical Execution
 6. Communication & Impact
 
-- Numeric scores within the **admin-configured scale** (no default assumed; if the scale is not configured yet, the form shows a clear "scoring not configured" state instead of guessing).
-- **COMMENTS** free text.
-- **SAVE EVALUATION**. Saving can be repeated (edit until admin finalizes). Shows the running total per the configured weights.
-- A juror sees only their own scores (proposed).
+- Whole-number scores from 1 to 10 (owner decision), or the admin `scoringScale` if set.
+- Optional overall comment.
+- **Review** step shows all scores and the total, with Edit to go back, then **SUBMIT FINAL SCORES**. Submission is final; the page becomes read-only.
+- An admin can unlock one evaluation for correction; the juror edits and resubmits, which locks it again.
+- A juror sees only their own scores.
 
 ---
 

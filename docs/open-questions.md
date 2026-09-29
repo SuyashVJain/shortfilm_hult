@@ -40,8 +40,8 @@ Status key: OPEN (undecided), PROPOSED (default suggested, needs confirmation), 
 
 | # | Question | Status | Interim behaviour |
 |---|---|---|---|
-| C1 | Scoring scale (1–5, 1–10, 0–100, weights) | OPEN | Admin-configurable min, max and per-criterion weight. No default assumed. |
-| C2 | Do all jurors see all films, or assigned subsets? | PROPOSED | All approved films visible; optional per-juror assignment later. |
+| C1 | Scoring scale (1–5, 1–10, 0–100, weights) | DONE | 1–10 whole numbers per criterion (owner decision); the admin `scoringScale` setting overrides it if set. No weights. |
+| C2 | Do all jurors see all films, or assigned subsets? | DONE | By location: teams are assigned to a location (room / online panel) and each juror sees only approved films of teams in their location. |
 | C3 | Can jurors see each other's scores? | PROPOSED | No, until results are finalized. |
 | C4 | Who computes winners (auto by score vs. admin decision)? | PROPOSED | Aggregated scores shown to admin, and the admin picks winners per category. |
 | C5 | Results publication date and format | OPEN | Results page hidden until admin publishes. |

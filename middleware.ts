@@ -4,15 +4,24 @@ type Role = "PARTICIPANT" | "JURY" | "ADMIN";
 
 const RULES: { prefix: string; roles: Role[] }[] = [
   { prefix: "/dashboard", roles: ["PARTICIPANT"] },
-  { prefix: "/jury", roles: ["JURY", "ADMIN"] },
   { prefix: "/admin", roles: ["ADMIN"] },
 ];
 
 const HOME: Record<Role, string> = { PARTICIPANT: "/dashboard", JURY: "/jury", ADMIN: "/admin" };
 
-// First line of defence only. Pages and actions still call requireRole().
+// Jury use their own username/password sessions (lib/jury-auth.ts), not Better Auth.
+const JURY_COOKIE = "jury_session";
+
+// First line of defence only. Pages and actions still call requireRole() / requireJury().
 export async function middleware(req: NextRequest) {
-  const rule = RULES.find((r) => req.nextUrl.pathname.startsWith(r.prefix));
+  const { pathname } = req.nextUrl;
+  if (pathname === "/jury" || pathname.startsWith("/jury/")) {
+    // Cookie presence only here; requireJury() validates it against the database.
+    if (pathname === "/jury/login" || req.cookies.has(JURY_COOKIE)) return NextResponse.next();
+    return NextResponse.redirect(new URL("/jury/login", req.url));
+  }
+
+  const rule = RULES.find((r) => pathname.startsWith(r.prefix));
   if (!rule) return NextResponse.next();
 
   let session: { user?: { role?: Role } } | null;
