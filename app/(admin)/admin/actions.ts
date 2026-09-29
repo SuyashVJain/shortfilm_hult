@@ -90,3 +90,32 @@ export async function setTeamLocked(teamId: string, locked: boolean): Promise<Ac
   refresh();
   return { ok: true, message: locked ? "Editing locked." : "Editing unlocked." };
 }
+
+const FILM_STATUSES = ["UNDER_REVIEW", "APPROVED", "REJECTED"] as const;
+
+/**
+ * Admin review of a film submission. REJECTED requires a note (shown to the
+ * team as the reason, and it can then resubmit). No email is sent.
+ */
+export async function setFilmStatus(
+  submissionId: string,
+  status: (typeof FILM_STATUSES)[number],
+  note?: string,
+): Promise<ActionResult> {
+  await requireRole("ADMIN");
+  const id = idSchema.safeParse(submissionId);
+  if (!id.success || !FILM_STATUSES.includes(status)) return { ok: false, error: "That submission could not be found." };
+  let adminNote: string | undefined;
+  if (status === "REJECTED") {
+    const parsed = reasonSchema.safeParse(note ?? "");
+    if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+    adminNote = parsed.data;
+  }
+  const { count } = await db.filmSubmission.updateMany({
+    where: { id: id.data, status: { not: "NOT_SUBMITTED" } },
+    data: { status, ...(adminNote !== undefined ? { adminNote } : {}) },
+  });
+  if (count === 0) return { ok: false, error: "That submission could not be found." };
+  refresh();
+  return { ok: true, message: status === "APPROVED" ? "Film approved." : status === "REJECTED" ? "Film rejected." : "Marked under review." };
+}

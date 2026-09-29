@@ -6,7 +6,8 @@ import { requireRole } from "@/lib/guards";
 import { isOwnScreenshotUrl } from "@/lib/payment-screenshots";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { getSetting, getSettings } from "@/lib/settings";
-import { fieldErrors, paymentSchema, teamEditSchema, teamNameKey } from "@/lib/validation";
+import { canSubmitFilm } from "@/lib/payment-status";
+import { fieldErrors, filmSubmissionSchema, paymentSchema, teamEditSchema, teamNameKey } from "@/lib/validation";
 
 const LOCKED = "Editing is locked by the organisers. Contact them if you need changes.";
 
@@ -113,6 +114,52 @@ export async function updateTeam(input: UpdateTeamInput): Promise<UpdateTeamResu
     console.warn("updateTeam: transaction failed");
     return { ok: false, formError: "We couldn't save your changes. Please try again." };
   }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/admin", "layout");
+  return { ok: true };
+}
+
+export type FilmResult = { ok: true } | { ok: false; fieldErrors?: Record<string, string>; formError?: string };
+
+type FilmInput = { sdg: number | string; title: string; synopsis: string; driveUrl: string; credits?: string };
+
+/**
+ * Create or update the team's film submission (one row per team).
+ * FilmSubmission is the source of truth for film content; Team's old film
+ * fields are not touched. Server re-checks: submission open, payment not
+ * REJECTED, and an existing entry is still editable (SUBMITTED or REJECTED).
+ */
+export async function saveFilmSubmission(input: FilmInput): Promise<FilmResult> {
+  const { user } = await requireRole("PARTICIPANT");
+
+  const team = await db.team.findUnique({
+    where: { leaderId: user.id },
+    select: {
+      id: true,
+      payments: { orderBy: { submittedAt: "desc" }, take: 1, select: { status: true } },
+      submission: { select: { status: true } },
+    },
+  });
+  if (!team) return { ok: false, formError: "We couldn't find your team." };
+
+  const settings = await getSettings();
+  if (!settings.submissionOpen) return { ok: false, formError: "Film submission is not open." };
+  if (!canSubmitFilm(team.payments[0]?.status)) {
+    return { ok: false, formError: "Submission is unavailable until your payment issue is resolved." };
+  }
+  const existing = team.submission?.status;
+  if (existing && existing !== "SUBMITTED" && existing !== "REJECTED" && existing !== "NOT_SUBMITTED") {
+    return { ok: false, formError: "Your film is already being reviewed, so it can't be changed now." };
+  }
+
+  const parsed = filmSubmissionSchema(settings.sdgThemes.map((t) => t.number)).safeParse(input);
+  if (!parsed.success) return { ok: false, fieldErrors: fieldErrors(parsed.error) };
+  const { sdg, title, synopsis, driveUrl, credits } = parsed.data;
+  const data = { sdg, title, synopsis, driveUrl, credits: credits || null, status: "SUBMITTED" as const, submittedAt: new Date() };
+
+  // Unique on teamId: one row per team, updated in place on resubmission.
+  await db.filmSubmission.upsert({ where: { teamId: team.id }, create: { teamId: team.id, ...data }, update: data });
 
   revalidatePath("/dashboard");
   revalidatePath("/admin", "layout");

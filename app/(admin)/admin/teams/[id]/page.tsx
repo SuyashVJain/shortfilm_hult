@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LockToggle } from "@/components/admin/LockToggle";
+import { FilmReview } from "@/components/admin/FilmReview";
 import { PaymentReview } from "@/components/admin/PaymentReview";
 import { ScreenshotDialog } from "@/components/admin/ScreenshotDialog";
 import { StatusBadge } from "@/components/ui";
@@ -41,14 +42,15 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
         leader: { select: { email: true } },
         members: { orderBy: [{ isLeader: "desc" }, { fullName: "asc" }] },
         payments: { orderBy: { submittedAt: "desc" } },
-        submission: { select: { status: true } },
+        submission: true,
       },
     }),
     getSettings(),
   ]);
   if (!team) notFound();
 
-  const theme = settings.sdgThemes.find((t) => t.number === team.sdg);
+  const film = team.submission && team.submission.status !== "NOT_SUBMITTED" ? team.submission : null;
+  const theme = film ? settings.sdgThemes.find((t) => t.number === film.sdg) : undefined;
   const latest = team.payments[0];
 
   return (
@@ -103,21 +105,33 @@ export default async function AdminTeamPage({ params }: PageProps<"/admin/teams/
         </ol>
       </Section>
 
-      <Section title="Film idea">
-        {/* Collected at film submission (Phase 2), so usually empty for newly registered teams. */}
-        {team.sdg == null && !team.filmTitle && !team.synopsis && !team.sdgApproach ? (
-          <p className="text-sm text-cream/60">Not yet chosen. Teams choose their SDG and film idea at film submission.</p>
+      <Section title="Film submission">
+        {/* FilmSubmission is the source of truth for film content. */}
+        {film ? (
+          <div className="space-y-4">
+            <dl>
+              <Row label="SDG">{theme ? `${theme.number} · ${theme.title}` : film.sdg}</Row>
+              <Row label="Title">{film.title}</Row>
+              <Row label="Drive link">
+                <a href={film.driveUrl} target="_blank" rel="noopener noreferrer" className="break-all underline underline-offset-4">
+                  {film.driveUrl}
+                </a>
+              </Row>
+              <Row label="Synopsis">
+                <span className="whitespace-pre-line">{film.synopsis}</span>
+              </Row>
+              {film.credits && (
+                <Row label="Credits">
+                  <span className="whitespace-pre-line">{film.credits}</span>
+                </Row>
+              )}
+              {film.submittedAt && <Row label="Submitted">{date.format(film.submittedAt)}</Row>}
+              {film.adminNote && <Row label="Admin note">{film.adminNote}</Row>}
+            </dl>
+            <FilmReview submissionId={film.id} status={film.status} />
+          </div>
         ) : (
-          <dl>
-            <Row label="SDG">{theme ? `${theme.number} · ${theme.title}` : (team.sdg ?? "Not yet chosen")}</Row>
-            <Row label="Title">{team.filmTitle ?? "Not yet chosen"}</Row>
-            <Row label="Synopsis">
-              <span className="whitespace-pre-line">{team.synopsis ?? "Not yet chosen"}</span>
-            </Row>
-            <Row label="SDG approach">
-              <span className="whitespace-pre-line">{team.sdgApproach ?? "Not yet chosen"}</span>
-            </Row>
-          </dl>
+          <p className="text-sm text-cream/60">Not submitted yet. Teams choose their SDG and film at film submission.</p>
         )}
       </Section>
 
