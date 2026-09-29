@@ -1,3 +1,4 @@
+import { EditTeam } from "@/components/dashboard/EditTeam";
 import { ResubmitPayment } from "@/components/dashboard/ResubmitPayment";
 import { Timeline, type TimelineStep } from "@/components/dashboard/Timeline";
 import { ButtonLink, StatusBadge } from "@/components/ui";
@@ -69,6 +70,7 @@ export default async function DashboardPage() {
   }
 
   const settings = await getSettings();
+  const leaderRow = team.members.find((m) => m.isLeader);
   const latest = team.payments[0];
   const canResubmit = latest?.status === "REJECTED" && !team.locked;
   const theme = team.sdg != null ? settings.sdgThemes.find((t) => t.number === team.sdg) : undefined;
@@ -145,6 +147,35 @@ export default async function DashboardPage() {
           <Row label="SDG">{theme ? `SDG ${theme.number} · ${theme.title}` : team.sdg != null ? `SDG ${team.sdg}` : NOT_CHOSEN}</Row>
           <Row label="Film title">{team.filmTitle ?? "Not yet chosen"}</Row>
         </dl>
+      </Section>
+
+      <Section title="Edit team">
+        {team.locked ? (
+          <p className="text-sm text-cream/70">Editing is locked by the organisers. Contact them if you need changes.</p>
+        ) : (
+          <EditTeam
+            email={user.email}
+            settings={{
+              registrationFee: settings.registrationFee,
+              minTeamSize: settings.minTeamSize,
+              maxTeamSize: settings.maxTeamSize,
+              paymentInstructions: settings.paymentInstructions,
+            }}
+            initial={{
+              details: {
+                teamName: team.name,
+                leaderName: team.leaderName,
+                enrollmentNumber: leaderRow?.enrollmentNumber ?? "",
+                whatsapp: team.whatsapp,
+                branch: team.branch,
+                semester: team.semester,
+              },
+              members: team.members
+                .filter((m) => !m.isLeader)
+                .map((m) => ({ id: m.id, fullName: m.fullName, enrollmentNumber: m.enrollmentNumber, branch: m.branch, semester: m.semester })),
+            }}
+          />
+        )}
       </Section>
 
       <Section title="Team leader">
