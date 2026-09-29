@@ -86,7 +86,6 @@ export default async function DashboardPage() {
       state: settings.submissionOpen ? "current" : "upcoming",
       note: settings.submissionOpen ? "Open" : "Not yet open",
     },
-    { label: "Jury", state: "upcoming" },
     { label: "Results", state: "upcoming" },
   ];
 
