@@ -1,14 +1,16 @@
 import { EditTeam } from "@/components/dashboard/EditTeam";
+import { FilmSubmissionForm } from "@/components/dashboard/FilmSubmissionForm";
 import { ResubmitPayment } from "@/components/dashboard/ResubmitPayment";
 import { Timeline, type TimelineStep } from "@/components/dashboard/Timeline";
 import { ButtonLink, StatusBadge } from "@/components/ui";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/guards";
-import { PAYMENT_LABEL, PAYMENT_TONE } from "@/lib/payment-status";
+import { canSubmitFilm, PAYMENT_LABEL, PAYMENT_TONE, SUBMISSION_LABEL } from "@/lib/payment-status";
 import { getSettings } from "@/lib/settings";
 
 const date = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
-const NOT_CHOSEN = "Not yet chosen. You'll pick this when film submission opens.";
+const NOT_CHOSEN = "SDG and film not yet chosen. You'll pick them when film submission opens.";
+const FILM_TONE = { NOT_SUBMITTED: "neutral", SUBMITTED: "pending", UNDER_REVIEW: "pending", APPROVED: "ok", REJECTED: "bad" } as const;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -42,8 +44,11 @@ export default async function DashboardPage() {
       branch: true,
       semester: true,
       sdg: true,
-      filmTitle: true,
       locked: true,
+      // FilmSubmission is the source of truth for film content.
+      submission: {
+        select: { sdg: true, title: true, synopsis: true, driveUrl: true, credits: true, status: true, submittedAt: true, adminNote: true },
+      },
       members: {
         orderBy: [{ isLeader: "desc" }, { fullName: "asc" }],
         select: { id: true, fullName: true, enrollmentNumber: true, branch: true, semester: true, isLeader: true },
@@ -73,7 +78,17 @@ export default async function DashboardPage() {
   const leaderRow = team.members.find((m) => m.isLeader);
   const latest = team.payments[0];
   const canResubmit = latest?.status === "REJECTED" && !team.locked;
-  const theme = team.sdg != null ? settings.sdgThemes.find((t) => t.number === team.sdg) : undefined;
+  const film = team.submission && team.submission.status !== "NOT_SUBMITTED" ? team.submission : null;
+  const theme = film ? settings.sdgThemes.find((t) => t.number === film.sdg) : undefined;
+  const paymentBlocksFilm = !canSubmitFilm(latest?.status);
+  const filmEditable = !film || film.status === "SUBMITTED" || film.status === "REJECTED";
+  const filmStep: TimelineStep = film
+    ? film.status === "REJECTED"
+      ? { label: "Film submission", state: "current", note: "Needs your attention" }
+      : { label: "Film submission", state: "done", note: SUBMISSION_LABEL[film.status] }
+    : settings.submissionOpen
+      ? { label: "Film submission", state: "current", note: "Open, not yet submitted" }
+      : { label: "Film submission", state: "upcoming", note: "Not yet open" };
 
   // Computed, not stored (architecture §5). Future steps are shown as upcoming only.
   const steps: TimelineStep[] = [
@@ -83,11 +98,7 @@ export default async function DashboardPage() {
       state: latest?.status === "VERIFIED" ? "done" : "current",
       note: latest ? (latest.status === "VERIFIED" ? undefined : latest.status === "REJECTED" ? "Rejected: action needed" : "Needs review") : "Not submitted",
     },
-    {
-      label: "Film submission",
-      state: settings.submissionOpen ? "current" : "upcoming",
-      note: settings.submissionOpen ? "Open" : "Not yet open",
-    },
+    filmStep,
     { label: "Results", state: "upcoming" },
   ];
 
@@ -142,11 +153,55 @@ export default async function DashboardPage() {
         )}
       </Section>
 
-      <Section title="Film">
-        <dl>
-          <Row label="SDG">{theme ? `SDG ${theme.number} · ${theme.title}` : team.sdg != null ? `SDG ${team.sdg}` : NOT_CHOSEN}</Row>
-          <Row label="Film title">{team.filmTitle ?? "Not yet chosen"}</Row>
-        </dl>
+      <Section title={film ? "Your film" : "Submit your film"}>
+        {film && (
+          <div className="mb-6">
+            <StatusBadge tone={FILM_TONE[film.status]}>{SUBMISSION_LABEL[film.status]}</StatusBadge>
+            {film.status === "REJECTED" && film.adminNote && (
+              <p className="mt-3 max-w-xl border-l-2 border-red bg-charcoal px-4 py-3 text-sm text-cream">Reason: {film.adminNote}</p>
+            )}
+            <dl className="mt-3">
+              <Row label="SDG">{theme ? `SDG ${theme.number} · ${theme.title}` : `SDG ${film.sdg}`}</Row>
+              <Row label="Film title">{film.title}</Row>
+              <Row label="Drive link">
+                <a href={film.driveUrl} target="_blank" rel="noopener noreferrer" className="break-all underline underline-offset-4 hover:text-white">
+                  {film.driveUrl}
+                </a>
+              </Row>
+              <Row label="Synopsis">
+                <span className="whitespace-pre-line">{film.synopsis}</span>
+              </Row>
+              {film.credits && (
+                <Row label="Credits">
+                  <span className="whitespace-pre-line">{film.credits}</span>
+                </Row>
+              )}
+              {film.submittedAt && <Row label="Submitted">{date.format(film.submittedAt)}</Row>}
+            </dl>
+          </div>
+        )}
+        {!settings.submissionOpen ? (
+          !film && <p className="text-sm text-cream/70">{NOT_CHOSEN} Film submission is not open yet. Details will be shared with registered teams.</p>
+        ) : paymentBlocksFilm ? (
+          <p className="text-sm text-cream/70">Submission is unavailable until your payment issue is resolved.</p>
+        ) : filmEditable ? (
+          <FilmSubmissionForm
+            // Remount after each save so the form collapses back to "Edit submission".
+            key={film?.submittedAt?.toISOString() ?? "new"}
+            themes={settings.sdgThemes}
+            maxMinutes={settings.maxFilmDurationMinutes}
+            isEdit={!!film}
+            initial={{
+              sdg: film?.sdg ?? null,
+              title: film?.title ?? "",
+              synopsis: film?.synopsis ?? "",
+              driveUrl: film?.driveUrl ?? "",
+              credits: film?.credits ?? "",
+            }}
+          />
+        ) : (
+          <p className="text-sm text-cream/70">Your film is being reviewed, so it can no longer be changed.</p>
+        )}
       </Section>
 
       <Section title="Edit team">

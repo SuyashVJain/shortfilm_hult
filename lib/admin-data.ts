@@ -33,7 +33,7 @@ export async function listTeams(): Promise<TeamRow[]> {
       leader: { select: { email: true } },
       _count: { select: { members: true } },
       payments: { orderBy: { submittedAt: "desc" }, take: 1, select: { status: true } },
-      submission: { select: { status: true } },
+      submission: { select: { status: true, sdg: true } },
     },
   });
   return teams.map((t) => ({
@@ -43,7 +43,8 @@ export async function listTeams(): Promise<TeamRow[]> {
     leaderName: t.leaderName,
     leaderEmail: t.leader.email,
     whatsapp: t.whatsapp,
-    sdg: t.sdg,
+    // Film content lives on FilmSubmission; Team.sdg is a legacy fallback.
+    sdg: t.submission?.sdg ?? t.sdg,
     size: t._count.members,
     latestPayment: t.payments[0]?.status ?? null,
     filmStatus: t.submission?.status ?? null,
