@@ -45,3 +45,9 @@ next-env.d.ts
 
 # prisma generated client
 /lib/generated/
+
+# local tooling (kept on disk, not tracked)
+.claude/
+skills-lock.json
+CLAUDE.md
+.mcp.json
