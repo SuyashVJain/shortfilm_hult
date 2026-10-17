@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { requireRole } from "@/lib/guards";
+import { registrationReceivedEmail } from "@/lib/email-templates";
 import { sendMail } from "@/lib/mailer";
 import { isOwnScreenshotUrl } from "@/lib/payment-screenshots";
 import { getSettings, isRegistrationOpen } from "@/lib/settings";
@@ -110,11 +111,7 @@ export async function registerTeam(input: RegistrationInput): Promise<RegisterRe
   try {
     await sendMail({
       to: user.email,
-      subject: `Registration received: ${teamCode}`,
-      text:
-        `Your team "${details.teamName.trim()}" is registered for the ${settings.eventTitle}.\n\n` +
-        `Team ID: ${teamCode}\nPayment: Needs review\n\n` +
-        `The organisers will check your payment. You can already use your team dashboard.`,
+      ...registrationReceivedEmail({ teamName: details.teamName.trim(), teamCode, eventTitle: settings.eventTitle }),
     });
   } catch {
     emailSent = false;

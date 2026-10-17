@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/guards";
+import { paymentRejectedEmail, paymentVerifiedEmail, type Email } from "@/lib/email-templates";
 import { sendMail } from "@/lib/mailer";
 
 export type ActionResult = { ok: true; message?: string } | { ok: false; error: string };
@@ -20,9 +21,9 @@ function refresh() {
   revalidatePath("/dashboard");
 }
 
-async function notify(to: string, subject: string, text: string) {
+async function notify(to: string, message: Email) {
   try {
-    await sendMail({ to, subject, text });
+    await sendMail({ to, ...message });
   } catch {
     console.warn("admin: payment email not sent");
   }
@@ -53,18 +54,9 @@ async function review(paymentId: string, data: { status: "VERIFIED" | "REJECTED"
   if (payment) {
     const { code, name, leader } = payment.team;
     if (data.status === "VERIFIED") {
-      await notify(
-        leader.email,
-        `Payment verified: ${code}`,
-        `Your payment for team "${name}" (${code}) is verified. Thank you.`,
-      );
+      await notify(leader.email, paymentVerifiedEmail({ teamName: name, teamCode: code }));
     } else {
-      await notify(
-        leader.email,
-        `Payment needs attention: ${code}`,
-        `The organisers could not verify the payment for team "${name}" (${code}).\n\nReason: ${data.rejectReason}\n\n` +
-          `You can resubmit your payment details from your dashboard.`,
-      );
+      await notify(leader.email, paymentRejectedEmail({ teamName: name, teamCode: code, reason: data.rejectReason ?? "" }));
     }
   }
   return { ok: true };

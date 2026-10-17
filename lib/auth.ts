@@ -4,6 +4,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { emailOTP } from "better-auth/plugins";
 import { db } from "@/lib/db";
+import { passwordResetCodeEmail, signInCodeEmail } from "@/lib/email-templates";
 import { sendMail } from "@/lib/mailer";
 
 export { ROLES, type Role } from "@/lib/roles";
@@ -58,19 +59,8 @@ export const auth = betterAuth({
       expiresIn: 600,
       // Codes are for first sign-up, sign-in by code, and password reset.
       async sendVerificationOTP({ email, otp, type }) {
-        await sendMail(
-          type === "forget-password"
-            ? {
-                to: email,
-                subject: `Your password reset code: ${otp}`,
-                text: `Your Short Film Competition password reset code is ${otp}.\n\nIt expires in 10 minutes.\n\nIf you did not request this, ignore it.`,
-              }
-            : {
-                to: email,
-                subject: `Your code: ${otp}`,
-                text: `Your Short Film Competition code is ${otp}.\n\nIt expires in 10 minutes.\n\nIf you did not request this, ignore it.`,
-              },
-        );
+        const message = type === "forget-password" ? passwordResetCodeEmail(otp) : signInCodeEmail(otp);
+        await sendMail({ to: email, ...message });
       },
     }),
     nextCookies(), // must stay last
