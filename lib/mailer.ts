@@ -28,6 +28,17 @@ function getTransporter() {
 export async function sendMail({ to, subject, text, html }: MailMessage) {
   // Local testing only: skip sending entirely (never set this in production).
   if (process.env.EMAIL_DRY_RUN === "1") return;
-  const from = process.env.EMAIL_FROM || `Short Film Competition <${process.env.SMTP_USER}>`;
-  await getTransporter().sendMail({ from, to, subject, text, html });
+  await getTransporter().sendMail({ from: fromAddress(), to, subject, text, html });
+}
+
+const DISPLAY_NAME = "Short Film Competition";
+
+/**
+ * Always send as "Short Film Competition <address>". EMAIL_FROM may be a bare
+ * address or "Name <address>"; only its address is used. Falls back to SMTP_USER.
+ */
+function fromAddress() {
+  const raw = (process.env.EMAIL_FROM || "").trim();
+  const address = raw.match(/<([^>]+)>/)?.[1]?.trim() || (raw.includes("@") ? raw : "") || process.env.SMTP_USER || "";
+  return { name: DISPLAY_NAME, address };
 }
