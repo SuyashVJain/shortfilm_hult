@@ -17,7 +17,7 @@
 | Validation | Zod | Shared schemas for client and server |
 | Database | PostgreSQL on **Neon** | Pooled URL for runtime, direct URL for migrations |
 | ORM | Prisma with the Neon serverless adapter | |
-| Auth | **Better Auth**, email OTP, role field | No passwords |
+| Auth | **Better Auth**, email + password with email codes, role field | Passwords are hashed with scrypt on the `account` table. Email codes are used for first sign-up, sign-in by code and password reset. Public password sign-up is disabled. 30-day sliding sessions |
 | Email | Gmail SMTP via nodemailer | OTP and minimal notifications. About 500 emails/day cap. Swappable behind `lib/mailer.ts` |
 | File storage | Vercel Blob behind `lib/storage.ts` interface | **Payment screenshots and the payment QR only** |
 | Film delivery | **Google Drive link** submitted by teams | No video files stored by us |
@@ -33,7 +33,7 @@ A 3-minute video can exceed free-tier upload limits and adds heavy storage, band
 | Role | Can | Cannot |
 |---|---|---|
 | PARTICIPANT (team leader) | View and edit own team (while editable), upload payment proof, view status, submit film link when open | See other teams, admin or jury pages |
-| JURY | Separate `JuryAccount` (username + password set by admin, own session; not Better Auth). Sees approved films from teams assigned to their location; submits final scores | See payment data, team members, admin settings, other jurors' scores, or teams outside their location |
+| JURY | Separate `JuryAccount` (username + password set by admin, 30-day session; not Better Auth). Can change their own password; admin can reset it. Sees approved films from teams assigned to their location; submits final scores | See payment data, team members, admin settings, other jurors' scores, or teams outside their location |
 | ADMIN | Everything: teams, payments, submissions, jury accounts, settings, results | n/a |
 
 Rules:
@@ -131,7 +131,7 @@ Public
 /sdgs                  The Four Stories
 /guidelines            Guidelines (facts + TBA blocks)
 /register              Multi-step registration (QR target)
-/login                 Email OTP login
+/login                 Email + password (or email code), forgot password
 
 Participant   (role PARTICIPANT)
 /dashboard             Status, timeline
@@ -168,7 +168,9 @@ Every action: Zod-validate input, `requireRole`, ownership check, then write. Re
 
 ## 9. Security and privacy
 
-- Email OTP only, with rate limiting on OTP requests and registration.
+- Email + password for participants and admin, with email codes for first sign-up, sign-in by code and password reset. Admin can always sign in with an email code, so it can never be locked out. Accounts without a password are prompted to set one after signing in.
+- Rate limiting on code requests, password sign-in, password reset and password changes. Session checks are never rate limited.
+- Jury passwords are hashed with scrypt; changing a password signs out the juror's other sessions, and an admin reset signs them out everywhere.
 - Strict Zod validation on every input, including Drive URL shape (`drive.google.com` / `docs.google.com` patterns).
 - Server-side role and ownership checks everywhere.
 - Personal data collected: names, email, WhatsApp number, branch, semester, payment screenshot. Store only what is needed. Admin CSV export is admin-only.

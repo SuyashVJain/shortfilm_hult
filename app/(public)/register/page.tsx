@@ -5,6 +5,7 @@ import { PublicFooter } from "@/components/site/PublicFooter";
 import { Container, SectionHeading } from "@/components/ui";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/guards";
+import { hasPassword } from "@/lib/passwords";
 import { homeForRole, toRole } from "@/lib/roles";
 import { getSettings, isRegistrationOpen } from "@/lib/settings";
 import { RegisterClient, type RegisterSettings } from "./RegisterClient";
@@ -63,7 +64,12 @@ export default async function RegisterPage() {
   return (
     <Frame>
       <SectionHeading as="h1" label="Real stories | Brighter tomorrows" title="Register your team" />
-      <RegisterClient email={session?.user.email ?? null} settings={settings} />
+      <RegisterClient
+        email={session?.user.email ?? null}
+        // Signed in by code but no password yet: set one before step 1.
+        needsPassword={session ? !(await hasPassword(session.user.id)) : false}
+        settings={settings}
+      />
     </Frame>
   );
 }

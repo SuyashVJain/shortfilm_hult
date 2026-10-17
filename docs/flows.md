@@ -20,8 +20,8 @@ Registration is kept fast: team details, members and payment only. **The SDG and
 
 **Guards:** if `registrationOpen` is false or the deadline has passed, show a calm "Registration is closed" screen with no form. If the user already has a team, redirect to `/dashboard`.
 
-### Step 0. Verify email
-The team leader enters their email and receives a one-time code, then enters it. This creates the account (role PARTICIPANT) and lets payment proof upload happen securely. Draft form data is kept in the browser so a refresh does not lose progress.
+### Step 0. Verify email and set a password
+The team leader enters their email and receives a one-time code, then enters it. This creates the account (role PARTICIPANT). They then set a password (with confirmation and a show/hide toggle) before step 1, so they can sign in with email and password later. Draft form data is kept in the browser so a refresh does not lose progress.
 
 ### Step 1. Team details
 Team Name · Team Leader Name · Team Leader Enrollment Number · Team Leader Email (prefilled, from verification) · WhatsApp Number · Branch · Semester.
@@ -77,7 +77,7 @@ CTA: **GO TO DASHBOARD**. Also send a confirmation email with the Team ID. The p
 
 ## 3. Login (`/login`)
 
-Email → OTP code → redirect by role: PARTICIPANT → `/dashboard`, JURY → `/jury`, ADMIN → `/admin`. No passwords. Wrong role hitting a protected route is redirected, not shown an error page.
+Participants and admin. Default: email + password → **Sign in**. Wrong email or password shows one generic message. Also offered: **Forgot password?** (email → reset code → new password, then signed in) and **Sign in with an email code instead**. Redirect by role: PARTICIPANT → `/dashboard`, ADMIN → `/admin`, honouring a safe `?next=`. Accounts without a password (including an admin created by the seed) sign in by code and are prompted to set a password: on the dashboard for participants, as a banner across `/admin` for admin. Signed-in users with a password can change it (dashboard Account section, admin overview). Jurors use `/jury/login` instead. Wrong role hitting a protected route is redirected, not shown an error page.
 
 ---
 
@@ -157,7 +157,7 @@ Sections: Event · Registration (fee, deadline, team size, open/closed) · Submi
 
 ## 6. Jury (`/jury`)
 
-Separate, minimal interface with its own sign-in (`/jury/login`, jury ID + password from the admin; not email OTP). Jury never sees payment data, team members or admin controls.
+Separate, minimal interface with its own sign-in (`/jury/login`, jury ID + password from the admin; not email codes). Sessions last 30 days. Jurors can change their password from the jury pages; admin can reset a juror's password on `/admin/jury` (the juror is signed out everywhere). Jury never sees payment data, team members or admin controls.
 
 ### List
 Approved films from teams assigned to the juror's location. Each row: Team ID, Team Name, Film Title, SDG, status (Not yet scored / Submitted / Unlocked for correction).
@@ -201,4 +201,4 @@ When published: a cinematic results page listing configured categories with winn
 
 ## 9. Notifications (minimal, via Gmail SMTP, `lib/mailer.ts`)
 
-OTP code · registration received (with Team ID) · payment verified · payment rejected (with reason) · film submission opened (optional, admin-triggered). Nothing more until needed.
+Sign-in code · password reset code · registration received (with Team ID) · payment verified · payment rejected (with reason) · film submission opened (optional, admin-triggered). Nothing more until needed.

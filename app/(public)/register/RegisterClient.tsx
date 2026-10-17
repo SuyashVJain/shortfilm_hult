@@ -17,6 +17,6 @@ const RegisterFlow = dynamic(() => import("@/components/register/RegisterFlow").
   loading: () => <div className="mt-12 h-64" aria-busy="true" />,
 });
 
-export function RegisterClient(props: { email: string | null; settings: RegisterSettings }) {
+export function RegisterClient(props: { email: string | null; needsPassword: boolean; settings: RegisterSettings }) {
   return <RegisterFlow {...props} />;
 }

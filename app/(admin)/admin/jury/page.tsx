@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { JuryActiveToggle, NewJuryAccountForm, NewLocationForm, TeamLocationSelect } from "@/components/admin/JuryAdmin";
+import { JuryActiveToggle, NewJuryAccountForm, NewLocationForm, ResetJuryPassword, TeamLocationSelect } from "@/components/admin/JuryAdmin";
 import { StatusBadge } from "@/components/ui";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/guards";
@@ -68,7 +68,8 @@ export default async function AdminJuryPage() {
                 <span className="text-cream/55">{a.location.name}</span>
                 <span className="text-cream/55">{a._count.evaluations} scored</span>
                 <StatusBadge tone={a.active ? "ok" : "neutral"}>{a.active ? "Active" : "Deactivated"}</StatusBadge>
-                <span className="ml-auto">
+                <span className="ml-auto flex flex-wrap items-center gap-3">
+                  <ResetJuryPassword id={a.id} username={a.username} />
                   <JuryActiveToggle id={a.id} active={a.active} />
                 </span>
               </li>

@@ -5,10 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { endJurySession, requireJury, startJurySession, verifyPassword } from "@/lib/jury-auth";
+import { currentJuryTokenHash, endJurySession, hashPassword, requireJury, startJurySession, verifyPassword } from "@/lib/jury-auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { evaluationSchema, scaleFrom } from "@/lib/scoring";
 import { getSettings } from "@/lib/settings";
+import { changePasswordSchema } from "@/lib/validation/password";
 
 export type LoginResult = { ok: false; error: string };
 
@@ -94,5 +95,27 @@ export async function submitEvaluation(teamId: string, scores: Record<string, un
   revalidatePath("/jury");
   revalidatePath(`/jury/${id.data}`);
   revalidatePath("/admin", "layout");
+  return { ok: true };
+}
+
+export type JuryPasswordResult = { ok: true } | { ok: false; error: string };
+
+/** Juror changes their own password; other sessions are signed out, this one stays. */
+export async function changeJuryPassword(input: { current: string; password: string; confirm: string }): Promise<JuryPasswordResult> {
+  const juror = await requireJury();
+  const parsed = changePasswordSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
+  if (!rateLimit(`jury-pw:${juror.id}`, 10, 10 * 60 * 1000)) {
+    return { ok: false, error: "Too many attempts. Please wait a few minutes and try again." };
+  }
+  const account = await db.juryAccount.findUnique({ where: { id: juror.id }, select: { passwordHash: true } });
+  if (!account || !(await verifyPassword(parsed.data.current, account.passwordHash))) {
+    return { ok: false, error: "Your current password isn't right." };
+  }
+  const keep = await currentJuryTokenHash();
+  await db.$transaction([
+    db.juryAccount.update({ where: { id: juror.id }, data: { passwordHash: await hashPassword(parsed.data.password) } }),
+    db.jurySession.deleteMany({ where: { juryAccountId: juror.id, ...(keep ? { tokenHash: { not: keep } } : {}) } }),
+  ]);
   return { ok: true };
 }

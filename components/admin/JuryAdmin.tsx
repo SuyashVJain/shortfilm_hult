@@ -5,6 +5,7 @@ import {
   assignTeamLocation,
   createJuryAccount,
   createLocation,
+  resetJuryPassword,
   setJuryActive,
   unlockEvaluation,
   type JuryAdminResult,
@@ -181,5 +182,64 @@ export function UnlockEvaluationButton({ id }: { id: string }) {
       </button>
       <Result r={r} />
     </span>
+  );
+}
+
+/** Admin sets a new password for one juror (never displayed again; the juror is signed out). */
+export function ResetJuryPassword({ id, username }: { id: string; username: string }) {
+  const [open, setOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [r, setR] = useState<JuryAdminResult | null>(null);
+  const [pending, start] = useTransition();
+  if (!open) {
+    return (
+      <span className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => { setR(null); setOpen(true); }}
+          className="min-h-9 border border-cream/35 px-3 text-xs uppercase tracking-[0.16em] text-cream hover:border-cream"
+        >
+          Reset password
+        </button>
+        <Result r={r} />
+      </span>
+    );
+  }
+  return (
+    <form
+      noValidate
+      className="flex flex-wrap items-center gap-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        start(async () => {
+          const res = await resetJuryPassword(id, password);
+          setR(res);
+          if (res.ok) {
+            setPassword("");
+            setOpen(false);
+          }
+        });
+      }}
+    >
+      <label htmlFor={`reset-${id}`} className="sr-only">
+        New password for {username}
+      </label>
+      <input
+        id={`reset-${id}`}
+        type="password"
+        autoComplete="new-password"
+        placeholder="New password (8+ characters)"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="min-h-9 rounded-sm border border-cream/25 bg-charcoal px-2 text-sm text-cream focus:border-red focus:outline-none"
+      />
+      <button type="submit" disabled={pending} className="min-h-9 bg-cream px-3 text-xs font-semibold uppercase tracking-[0.16em] text-bg disabled:opacity-40">
+        {pending ? "Saving…" : "Save"}
+      </button>
+      <button type="button" onClick={() => setOpen(false)} className="min-h-9 px-2 text-xs uppercase tracking-[0.16em] text-cream/60 hover:text-cream">
+        Cancel
+      </button>
+      <Result r={r} />
+    </form>
   );
 }

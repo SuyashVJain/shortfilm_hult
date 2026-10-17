@@ -26,6 +26,8 @@ function getTransporter() {
 }
 
 export async function sendMail({ to, subject, text, html }: MailMessage) {
+  // Local testing only: skip sending entirely (never set this in production).
+  if (process.env.EMAIL_DRY_RUN === "1") return;
   const from = process.env.EMAIL_FROM || `Short Film Competition <${process.env.SMTP_USER}>`;
   await getTransporter().sendMail({ from, to, subject, text, html });
 }

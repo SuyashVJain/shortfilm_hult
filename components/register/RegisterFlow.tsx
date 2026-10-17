@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { EmailOtpForm } from "@/components/auth/EmailOtpForm";
+import { SetPasswordForm } from "@/components/auth/SetPasswordForm";
 import { Button, FormNotice, Stepper } from "@/components/ui";
 import { registerTeam, type RegisterResult } from "@/app/(public)/register/actions";
 import { fieldErrors, paymentSchema, teamDetailsSchema, teamMembersSchema } from "@/lib/validation";
@@ -38,9 +39,9 @@ function prefixed(prefix: string, errors: Errors): Errors {
   return Object.fromEntries(Object.entries(errors).map(([k, v]) => [k ? `${prefix}.${k}` : prefix, v]));
 }
 
-type Props = { email: string | null; settings: RegisterSettings };
+type Props = { email: string | null; needsPassword: boolean; settings: RegisterSettings };
 
-export function RegisterFlow({ email, settings }: Props) {
+export function RegisterFlow({ email, needsPassword, settings }: Props) {
   const router = useRouter();
   // Mounted client-only (see RegisterClient), so reading storage here is safe.
   const [draft, setDraftState] = useState<Draft>(loadDraft);
@@ -59,7 +60,8 @@ export function RegisterFlow({ email, settings }: Props) {
   }, [draft, done]);
 
   const setDraft = (update: (d: Draft) => Draft) => setDraftState(update);
-  const step = email ? Math.min(Math.max(draft.step, 1), STEPS.length - 1) : 0;
+  // Step 0 covers both the email code and setting a password.
+  const step = email && !needsPassword ? Math.min(Math.max(draft.step, 1), STEPS.length - 1) : 0;
 
   const goTo = (next: number) => {
     setErrors({});
@@ -142,15 +144,24 @@ export function RegisterFlow({ email, settings }: Props) {
       <Stepper steps={STEPS} current={step} canVisit={(i) => i >= 1 && !submitting} onVisit={goTo} />
 
       <h2 ref={headingRef} tabIndex={-1} className="mt-10 font-display text-3xl uppercase text-cream outline-none sm:text-4xl">
-        {["Verify your email", "Team details", "Team members", "Payment", "Review"][step]}
+        {step === 0 && email ? "Set your password" : ["Verify your email", "Team details", "Team members", "Payment", "Review"][step]}
       </h2>
 
       <div className="mt-8">
-        {step === 0 && (
+        {step === 0 && !email && (
           <>
             <p className="mb-2 text-cream/70">The team leader verifies their email first. We&rsquo;ll send a 6-digit code.</p>
             {/* After verifying, the server page re-renders with the session and the flow continues. */}
             <EmailOtpForm submitLabel="Verify and continue" onVerified={() => router.refresh()} />
+          </>
+        )}
+        {step === 0 && email && needsPassword && (
+          <>
+            <p className="mb-6 text-cream/70">
+              Email verified: <span className="text-cream">{email}</span>. Now set a password so you can sign in to your team dashboard later.
+            </p>
+            {/* SetPasswordForm refreshes the page; needsPassword becomes false and step 1 opens. */}
+            <SetPasswordForm submitLabel="Set password and continue" />
           </>
         )}
         {step === 1 && email && <StepDetails draft={draft} setDraft={setDraft} errors={errors} settings={settings} email={email} />}

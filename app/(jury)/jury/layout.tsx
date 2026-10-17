@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { JuryPasswordChange } from "@/components/jury/JuryPasswordChange";
 import { getJury } from "@/lib/jury-auth";
 import { juryLogout } from "./actions";
 
@@ -32,6 +33,14 @@ export default async function JuryLayout({ children }: { children: React.ReactNo
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-8 sm:py-10">{children}</main>
+      {juror && (
+        <section aria-labelledby="jury-account" className="mx-auto max-w-5xl border-t border-divider px-4 pt-6 pb-12 sm:px-8">
+          <h2 id="jury-account" className="mb-4 text-[0.7rem] uppercase tracking-[0.24em] text-cream-muted">
+            Your account
+          </h2>
+          <JuryPasswordChange />
+        </section>
+      )}
     </div>
   );
 }

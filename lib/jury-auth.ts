@@ -13,7 +13,7 @@ import { db } from "@/lib/db";
 const scrypt = promisify(scryptCb) as (password: string, salt: Buffer, keylen: number) => Promise<Buffer>;
 
 export const JURY_COOKIE = "jury_session";
-const SESSION_HOURS = 12;
+const SESSION_HOURS = 24 * 30; // 30 days
 const KEYLEN = 64;
 
 /** "scrypt$<salt b64>$<hash b64>". Never returned from actions or logged. */
@@ -45,6 +45,12 @@ export async function startJurySession(juryAccountId: string) {
     path: "/",
     expires: expiresAt,
   });
+}
+
+/** Hash of the current request's jury token (to keep this session when signing out others). */
+export async function currentJuryTokenHash() {
+  const token = (await cookies()).get(JURY_COOKIE)?.value;
+  return token ? sha256(token) : null;
 }
 
 export async function endJurySession() {

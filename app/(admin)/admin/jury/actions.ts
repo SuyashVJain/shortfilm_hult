@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { requireRole } from "@/lib/guards";
 import { hashPassword } from "@/lib/jury-auth";
+import { passwordSchema } from "@/lib/validation/password";
 
 export type JuryAdminResult = { ok: true; message: string } | { ok: false; error: string };
 
@@ -36,7 +37,7 @@ const accountSchema = z.object({
     .trim()
     .toLowerCase()
     .regex(/^[a-z0-9._-]{3,32}$/, "Jury ID: 3–32 characters, letters, numbers, dot, dash or underscore."),
-  password: z.string().min(8, "Password must be at least 8 characters.").max(200),
+  password: passwordSchema,
   displayName: z.string().trim().min(2, "Please enter the juror's name.").max(80),
   locationId: id,
 });
@@ -103,4 +104,21 @@ export async function unlockEvaluation(evaluationId: string): Promise<JuryAdminR
   if (count === 0) return { ok: false, error: "That evaluation is already unlocked or could not be found." };
   refresh();
   return { ok: true, message: "Unlocked. The juror can correct and resubmit it." };
+}
+
+/** Admin sets a new password for a juror. Hashed, never shown again; the juror is signed out everywhere. */
+export async function resetJuryPassword(accountId: string, password: string): Promise<JuryAdminResult> {
+  await requireRole("ADMIN");
+  const parsedId = id.safeParse(accountId);
+  if (!parsedId.success) return { ok: false, error: "That account could not be found." };
+  const parsedPw = passwordSchema.safeParse(password);
+  if (!parsedPw.success) return { ok: false, error: parsedPw.error.issues[0].message };
+  const { count } = await db.juryAccount.updateMany({
+    where: { id: parsedId.data },
+    data: { passwordHash: await hashPassword(parsedPw.data) },
+  });
+  if (count === 0) return { ok: false, error: "That account could not be found." };
+  await db.jurySession.deleteMany({ where: { juryAccountId: parsedId.data } });
+  refresh();
+  return { ok: true, message: "Password reset. Share it with the juror privately; they've been signed out." };
 }

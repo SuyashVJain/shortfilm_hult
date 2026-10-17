@@ -1,3 +1,5 @@
+import { AccountPasswordChange } from "@/components/auth/AccountPasswordChange";
+import { SetPasswordForm } from "@/components/auth/SetPasswordForm";
 import { EditTeam } from "@/components/dashboard/EditTeam";
 import { FilmSubmissionForm } from "@/components/dashboard/FilmSubmissionForm";
 import { ResubmitPayment } from "@/components/dashboard/ResubmitPayment";
@@ -5,6 +7,7 @@ import { Timeline, type TimelineStep } from "@/components/dashboard/Timeline";
 import { ButtonLink, StatusBadge } from "@/components/ui";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/guards";
+import { hasPassword } from "@/lib/passwords";
 import { canSubmitFilm, PAYMENT_LABEL, PAYMENT_TONE, SUBMISSION_LABEL } from "@/lib/payment-status";
 import { getSettings } from "@/lib/settings";
 
@@ -61,6 +64,8 @@ export default async function DashboardPage() {
     },
   });
 
+  const passwordSet = await hasPassword(user.id);
+
   if (!team) {
     return (
       <div className="py-16">
@@ -70,6 +75,15 @@ export default async function DashboardPage() {
         <ButtonLink href="/register" className="mt-8">
           Register your team
         </ButtonLink>
+        {!passwordSet && (
+          <section className="mt-12 max-w-md border border-amber/40 bg-charcoal p-5 sm:p-6">
+            <h2 className="text-[0.7rem] uppercase tracking-[0.24em] text-amber">Set a password</h2>
+            <p className="mt-2 text-sm text-cream/75">Set a password so you can sign in with your email and password next time.</p>
+            <div className="mt-5">
+              <SetPasswordForm />
+            </div>
+          </section>
+        )}
       </div>
     );
   }
@@ -117,6 +131,18 @@ export default async function DashboardPage() {
           </p>
         )}
       </header>
+
+      {!passwordSet && (
+        <section className="border border-amber/40 bg-charcoal p-5 sm:p-6">
+          <h2 className="text-[0.7rem] uppercase tracking-[0.24em] text-amber">Set a password</h2>
+          <p className="mt-2 max-w-prose text-sm text-cream/75">
+            You signed in with an email code. Set a password so you can sign in with your email and password next time.
+          </p>
+          <div className="mt-5 max-w-md">
+            <SetPasswordForm />
+          </div>
+        </section>
+      )}
 
       <Section title="Progress">
         <Timeline steps={steps} />
@@ -260,6 +286,12 @@ export default async function DashboardPage() {
           ))}
         </ol>
       </Section>
+
+      {passwordSet && (
+        <Section title="Account">
+          <AccountPasswordChange />
+        </Section>
+      )}
     </div>
   );
 }

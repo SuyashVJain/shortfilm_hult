@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { StatBlock } from "@/components/ui";
 import { overviewStats } from "@/lib/admin-data";
+import { AccountPasswordChange } from "@/components/auth/AccountPasswordChange";
 import { requireRole } from "@/lib/guards";
+import { hasPassword } from "@/lib/passwords";
 
 export default async function AdminOverviewPage() {
-  await requireRole("ADMIN");
-  const s = await overviewStats();
+  const { user } = await requireRole("ADMIN");
+  const [s, passwordSet] = await Promise.all([overviewStats(), hasPassword(user.id)]);
 
   return (
     <>
@@ -30,6 +32,13 @@ export default async function AdminOverviewPage() {
         <StatBlock value={s.evaluations} label="Evaluations completed" />
       </div>
       <p className="mt-6 text-xs text-cream/45">Payment counts use each team&rsquo;s latest payment.</p>
+
+      {passwordSet && (
+        <section className="mt-14 border-t border-divider pt-6">
+          <h2 className="mb-4 text-[0.7rem] uppercase tracking-[0.24em] text-cream-muted">Your account</h2>
+          <AccountPasswordChange />
+        </section>
+      )}
     </>
   );
 }
