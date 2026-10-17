@@ -151,7 +151,7 @@ export function SettingsForms({ initial }: { initial: SettingsFormValues }) {
           <Field label="Instructions text" helper="Leave empty to show “Payment details will be shared.”">
             {(p) => <Textarea {...p} rows={4} maxLength={2000} value={v.paymentText} onChange={(e) => set("paymentText")(e.target.value)} />}
           </Field>
-          <Field label="QR image" helper="A site path such as /pay/payment_suyash.jpg, or an https link. Leave empty for no QR.">
+          <Field label="QR image" helper="A site path such as /pay/qr.jpg, or an https link. Leave empty for no QR.">
             {(p) => <Input {...p} value={v.qrImageUrl} spellCheck={false} onChange={(e) => set("qrImageUrl")(e.target.value)} />}
           </Field>
         </Group>
