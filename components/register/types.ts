@@ -1,4 +1,4 @@
-import type { RegisterSettings } from "@/app/(public)/register/RegisterClient";
+import type { RegisterSettings } from "@/app/(public)/(site)/register/RegisterClient";
 
 export type { RegisterSettings };
 

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { EmailOtpForm } from "@/components/auth/EmailOtpForm";
 import { SetPasswordForm } from "@/components/auth/SetPasswordForm";
 import { Button, FormNotice, Stepper } from "@/components/ui";
-import { registerTeam, type RegisterResult } from "@/app/(public)/register/actions";
+import { registerTeam, type RegisterResult } from "@/app/(public)/(site)/register/actions";
 import { fieldErrors, paymentSchema, teamDetailsSchema, teamMembersSchema } from "@/lib/validation";
 import { Confirmation } from "./Confirmation";
 import { StepDetails } from "./StepDetails";
