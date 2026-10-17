@@ -22,11 +22,14 @@ const C = {
   faint: "#8C8478", // footer text, ~5:1 on #050505
   red: "#E11D2E",
   line: "#2A2824", // cream at ~12% on #111
-  ink: "#161412", // code text on the cream ticket
+  ticket: "#1B1812", // dark ticket panel (survives Gmail dark mode)
+  ticketLabel: "#F4A6AD", // light red-cream label on the ticket
+  sprocket: "#CFC4AE", // film-strip holes, bright enough after dimming
 };
 const SERIF = "Georgia, 'Times New Roman', Times, serif";
 const SANS = "Arial, Helvetica, sans-serif";
-const DISPLAY = "Impact, 'Arial Narrow Bold', 'Arial Narrow', Arial, sans-serif";
+// Heavy sans so Android (no Impact) falls back to something bold, not thin.
+const DISPLAY = "'Arial Black', 'Helvetica Neue', Arial, sans-serif";
 const MONO = "'Courier New', Courier, monospace";
 
 /** Escape a value for safe inclusion in HTML text or attributes. */
@@ -59,7 +62,7 @@ function filmStrip(holes = 16) {
   const cells = Array.from({ length: holes })
     .map(
       () =>
-        `<td width="${w}" align="center" style="width:${w};padding:7px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="10" height="7" bgcolor="${C.cream}" style="width:10px;height:7px;background:${C.cream};border-radius:1px;font-size:0;line-height:0;">&nbsp;</td></tr></table></td>`,
+        `<td width="${w}" align="center" bgcolor="${C.strip}" style="width:${w};padding:7px 0;background:${C.strip};"><table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td width="12" height="8" bgcolor="${C.sprocket}" style="width:12px;height:8px;background:${C.sprocket};border-radius:1px;font-size:0;line-height:0;">&nbsp;</td></tr></table></td>`,
     )
     .join("");
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.strip}" style="background:${C.strip};table-layout:fixed;">
@@ -70,14 +73,19 @@ function filmStrip(holes = 16) {
 const p = (html: string) =>
   `<p style="margin:0 0 18px 0;font-family:${SANS};font-size:15px;line-height:24px;color:${C.cream};">${html}</p>`;
 
-/** Ticket stub: cream block with perforated (dashed) sides, "ADMIT ONE" label and the code. */
+/**
+ * Ticket stub: a DARK panel (Gmail dark mode inverts light blocks) with a cream
+ * border and perforated (dashed) cream sides. Label and digits each sit in their
+ * own <td> with bgcolor + inline colours, and no nested backgrounds.
+ */
 function ticket(code: string, label = "Admit one") {
-  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:6px auto 24px auto;">
+  const edge = `border-left:2px dashed ${C.cream};border-right:2px dashed ${C.cream};`;
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" bgcolor="${C.ticket}" style="margin:6px auto 24px auto;background:${C.ticket};border-top:2px solid ${C.cream};border-bottom:2px solid ${C.cream};">
   <tr>
-    <td bgcolor="${C.cream}" style="background:${C.cream};border-left:3px dashed ${C.panel};border-right:3px dashed ${C.panel};padding:14px 34px 18px 34px;text-align:center;">
-      <div style="font-family:${SANS};font-size:10px;line-height:14px;letter-spacing:4px;text-transform:uppercase;color:#7A1018;font-weight:bold;">${esc(label)}</div>
-      <div style="margin-top:6px;font-family:${MONO};font-size:34px;line-height:40px;font-weight:bold;letter-spacing:10px;color:${C.ink};">${esc(code)}</div>
-    </td>
+    <td align="center" bgcolor="${C.ticket}" style="background:${C.ticket};color:${C.ticketLabel};${edge}padding:14px 34px 2px 34px;font-family:${SANS};font-size:10px;line-height:14px;letter-spacing:4px;text-transform:uppercase;font-weight:bold;">${esc(label)}</td>
+  </tr>
+  <tr>
+    <td align="center" bgcolor="${C.ticket}" style="background:${C.ticket};color:${C.cream};${edge}padding:4px 34px 16px 34px;font-family:${MONO};font-size:34px;line-height:40px;font-weight:bold;letter-spacing:10px;">${esc(code)}</td>
   </tr>
 </table>`;
 }
@@ -122,7 +130,7 @@ function layout(preheader: string, heading: string, body: string) {
     <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.page}" style="width:100%;max-width:600px;background:${C.page};">
       <tr><td>${filmStrip()}</td></tr>
       <tr><td bgcolor="${C.page}" style="background:${C.page};padding:30px 32px 26px 32px;">
-        <div style="font-family:${DISPLAY};font-size:38px;line-height:40px;letter-spacing:5px;color:${C.cream};text-transform:uppercase;">SHORT FILM</div>
+        <div style="font-family:${DISPLAY};font-weight:900;font-size:34px;line-height:40px;letter-spacing:5px;color:${C.cream};text-transform:uppercase;"><b style="font-weight:900;">SHORT FILM</b></div>
         <div style="font-family:${SERIF};font-style:italic;font-size:32px;line-height:34px;color:${C.red};margin:-2px 0 0 26px;">Competition</div>
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 0 26px;"><tr><td width="150" height="3" bgcolor="${C.red}" style="width:150px;height:3px;background:${C.red};font-size:0;line-height:0;">&nbsp;</td></tr></table>
         <div style="margin-top:18px;font-family:${SANS};font-size:10px;line-height:14px;letter-spacing:2.5px;text-transform:uppercase;color:${C.muted};">Real Stories <span style="color:${C.red};">|</span> Brighter Tomorrows</div>
